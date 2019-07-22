@@ -43,7 +43,7 @@
                                             <tr>
                                                 <td> {{ lineas['ItemRefFullName'] }} </td>
                                                 <td> {{ lineas['Quantity'] }} </td>
-                                                <td> {{ numeric_field(campo2) }} </td>
+                                                <td> {{ numeric_field(campo2, "step":"any") }} </td>
                                                 <td> {{ lineas['Quantity'] }} </td>
                                                 <td> {{ lineas['Rate']  | number_format(2, ',', '.') }} </td>
                                                 {% set lineastot = lineas['Rate'] * lineas['Quantity'] %}

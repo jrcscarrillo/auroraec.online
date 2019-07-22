@@ -8,7 +8,7 @@ use Phalcon\Forms\Element\Select;
 use Phalcon\Forms\Element\Numeric;
 use Phalcon\Validation\Validator\PresenceOf;
 use Phalcon\Validation\Validator\Regex;
-use ValidaInvoiceValidator;
+use \base\ValidaInvoiceValidator;
 
 class NuevaNCRForm extends Form {
 
@@ -23,7 +23,7 @@ class NuevaNCRForm extends Form {
         ));
         $this->add($fechaemision );
 
-        $tiponotacr = new Select("tiponotacr", array("29" => "Aprobado Especial", "30" => "Devolucion Producto", "31" => "Descuento Producto"));
+        $tiponotacr = new Select("tiponotacr", array("30" => "Devolucion Producto", "31" => "Descuento Producto"));
         $tiponotacr->setLabel("Tipo Nota de Credito");
         $tiponotacr->addValidators(array(
            new PresenceOf(array(

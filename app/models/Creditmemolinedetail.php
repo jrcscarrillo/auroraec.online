@@ -15,7 +15,7 @@ class Creditmemolinedetail extends \Phalcon\Mvc\Model {
     protected $OverrideUOMSetRef_ListID;
     protected $OverrideUOMSetRef_FullName;
     protected $Rate;
-    protected $RatePercent;
+    protected $TaxRate;
     protected $ClassRef_ListID;
     protected $ClassRef_FullName;
     protected $Amount;
@@ -61,7 +61,7 @@ class Creditmemolinedetail extends \Phalcon\Mvc\Model {
         $this->OverrideUOMSetRef_ListID = 'n/a';
         $this->OverrideUOMSetRef_FullName = 'n/a';
         $this->Rate = 0;
-        $this->RatePercent = 0;
+        $this->TaxRate = 0;
         $this->ClassRef_ListID = 'n/a';
         $this->ClassRef_FullName = 'n/a';
         $this->Amount = 0;
@@ -134,8 +134,8 @@ class Creditmemolinedetail extends \Phalcon\Mvc\Model {
         return $this->Rate;
     }
 
-    function getRatePercent() {
-        return $this->RatePercent;
+    function getTaxRate() {
+        return $this->TaxRate;
     }
 
     function getClassRefListID() {
@@ -295,8 +295,8 @@ class Creditmemolinedetail extends \Phalcon\Mvc\Model {
         $this->Rate = $val;
     }
 
-    function setRatePercent($val) {
-        $this->RatePercent = $val;
+    function setTaxRate($val) {
+        $this->TaxRate = $val;
     }
 
     function setClassRefListID($val) {
@@ -422,7 +422,7 @@ class Creditmemolinedetail extends \Phalcon\Mvc\Model {
         $this->setSchema("coopdb");
         $this->setSource("creditmemolinedetail");
         $this->belongsTo('IDKEY', 'Creditmemo', 'TxnID');
-        $this->belongsTo('itemRef_ListID', 'Items', 'quickbooks_listid');
+        $this->belongsTo('ItemRef_ListID', 'Items', 'quickbooks_listid');
     }
 
     /**

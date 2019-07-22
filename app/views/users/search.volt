@@ -35,7 +35,7 @@
                         <th class="tb-gen tb-c10">NumeroId</th>
                         <th class="tb-gen tb-c25">Name</th>
                         <th class="tb-gen tb-c25">Email</th>
-                        <th class="tb-gen tb-c5">Active</th>
+                        <th class="tb-gen tb-c2">Active</th>
                         <th class="tb-gen tb-c10">Qbid</th>
                         <th class="tb-gen tb-c2">Habilitar</th>
                         <th class="tb-gen tb-c2">Editar</th>

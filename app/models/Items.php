@@ -7,9 +7,9 @@ class Items extends \Phalcon\Mvc\Model {
 // **********************
 
     protected $id;
-    protected $name;
+    protected $nombre;
     protected $fullname;
-    protected $description;
+    protected $descripcion;
     protected $quickbooks_listid;
     protected $quickbooks_editsequence;
     protected $quickbooks_errnum;
@@ -20,7 +20,7 @@ class Items extends \Phalcon\Mvc\Model {
     protected $sublevel;
     protected $unit_of_measure_set_ref_listid;
     protected $unit_of_measure_set_ref_fullname;
-    protected $type;
+    protected $tipo;
     protected $sales_tax_code_ref_listid;
     protected $sales_tax_code_ref_fullname;
     protected $sales_desc;
@@ -99,16 +99,16 @@ class Items extends \Phalcon\Mvc\Model {
         return $this->id;
     }
 
-    function getname() {
-        return $this->name;
+    function getnombre() {
+        return $this->nombre;
     }
 
     function getfullname() {
         return $this->fullname;
     }
 
-    function getdescription() {
-        return $this->description;
+    function getdescripcion() {
+        return $this->descripcion;
     }
 
     function getquickbooks_listid() {
@@ -151,8 +151,8 @@ class Items extends \Phalcon\Mvc\Model {
         return $this->unit_of_measure_set_ref_fullname;
     }
 
-    function gettype() {
-        return $this->type;
+    function gettipo() {
+        return $this->tipo;
     }
 
     function getsales_tax_code_ref_listid() {
@@ -244,16 +244,16 @@ class Items extends \Phalcon\Mvc\Model {
         $this->id = $val;
     }
 
-    function setname($val) {
-        $this->name = $val;
+    function setnombre($val) {
+        $this->nombre = $val;
     }
 
     function setfullname($val) {
         $this->fullname = $val;
     }
 
-    function setdescription($val) {
-        $this->description = $val;
+    function setdescripcion($val) {
+        $this->descripcion = $val;
     }
 
     function setquickbooks_listid($val) {
@@ -296,8 +296,8 @@ class Items extends \Phalcon\Mvc\Model {
         $this->unit_of_measure_set_ref_fullname = $val;
     }
 
-    function settype($val) {
-        $this->type = $val;
+    function settipo($val) {
+        $this->tipo = $val;
     }
 
     function setsales_tax_code_ref_listid($val) {

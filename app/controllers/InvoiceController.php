@@ -57,7 +57,18 @@ class InvoiceController extends ControllerBase {
     public function firmarAction($TxnID) {
 
         $vinode = $this->session->get('vinode');
-        $this->_cargaFactura($TxnID);
+        $parameters = array('conditions' => '[TxnID] = :txnid:', 'bind' => array('txnid' => $TxnID));
+        $factura = Invoice::findFirst($parameters);
+        if ($factura == false) {
+            $this->flash->error("Esta factura no existe");
+            return $this->dispatcher->forward(
+                            [
+                                "controller" => "invoice",
+                                "action" => "index",
+                            ]
+            );
+        }
+
         $this->_registerInvoice($factura);
         $recibida = $this->firmaFactura($factura);
         if ($recibida === 'OK') {
@@ -105,7 +116,7 @@ class InvoiceController extends ControllerBase {
         $this->_registerInvoice($factura);
     }
 
-    public function soloautorizar($TxnID) {
+    private function soloautorizar($TxnID) {
         $this->_cargaFactura($TxnID);
         $mensaje = $this->claves->respuestaSRI($this->firmado, $this->ambiente);
         if ($mensaje['mensaje'] === "AUTORIZADO") {

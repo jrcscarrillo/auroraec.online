@@ -8,7 +8,7 @@ class CreditmemoController extends ControllerBase {
     public $ambiente;
     public $txt_ambiente;
     public $firmado;
-
+    
     public function initialize() {
         $this->tag->setTitle('NotasQB');
         parent::initialize();
@@ -39,74 +39,91 @@ class CreditmemoController extends ControllerBase {
             $this->flash->notice("No existes notas de credito bajo esos parametros");
 
             $this->dispatcher->forward([
-                "controller" => "creditmemo",
-                "action" => "index"
+               "controller" => "creditmemo",
+               "action" => "index"
             ]);
 
             return;
         }
 
         $paginator = new Paginator([
-            'data' => $creditmemo,
-            'limit' => 100,
-            'page' => $numberPage
+           'data' => $creditmemo,
+           'limit' => 100,
+           'page' => $numberPage
         ]);
 
         $this->view->page = $paginator->getPaginate();
     }
 
-    private function _cargaCredito($TxnID) {
+    private function soloautorizar($TxnID) {
         $parameters = array('conditions' => '[TxnID] = :txnid:', 'bind' => array('txnid' => $TxnID));
         $credito = Creditmemo::findFirst($parameters);
         if ($credito == false) {
             $this->flash->error("Esta nota de credito no existe");
             return $this->dispatcher->forward(
-                            [
-                                "controller" => "creditmemo",
-                                "action" => "index",
-                            ]
+                  [
+                     "controller" => "creditmemo",
+                     "action" => "index",
+                  ]
             );
         }
 
         $this->_registraCredito($credito);
-    }
-
-    private function soloAutorizar($TxnID) {
-
-        $this->_cargaCredito($TxnID);
-        $this->flash->success('Nota Credito del QB Seleccionada || ' . $credito->RefNumber);
+        
         $mensaje = $this->claves->respuestaSRI($this->firmado, $this->ambiente);
-        if ($mensaje['mensaje'] === "AUTORIZADO") {
+        if($mensaje['mensaje'] === "AUTORIZADO"){
             $this->notaAutorizada($mensaje);
             return "OK";
         } else {
             $this->flash->error('EN ' . $this->txt_ambiente . $mensaje['mensaje']);
             return "ERROR";
         }
-    }
+    }    
 
     public function autorizarAction($TxnID) {
+        $parameters = array('conditions' => '[TxnID] = :txnid:', 'bind' => array('txnid' => $TxnID));
+        $credito = Creditmemo::findFirst($parameters);
+        if ($credito == false) {
+            $this->flash->error("Esta nota de credito no existe");
+            return $this->dispatcher->forward(
+                  [
+                     "controller" => "creditmemo",
+                     "action" => "index",
+                  ]
+            );
+        }
 
-        $this->_cargaCredito($TxnID);
-        $this->flash->success('Nota Credito del QB Seleccionada || ' . $credito->RefNumber);
+        $this->_registraCredito($credito);
+        
         $mensaje = $this->claves->respuestaSRI($this->firmado, $this->ambiente);
-        if ($mensaje['mensaje'] === "AUTORIZADO") {
+        if($mensaje['mensaje'] === "AUTORIZADO"){
             $this->notaAutorizada($mensaje);
         } else {
             $this->flash->error('EN ' . $this->txt_ambiente . $mensaje['mensaje']);
         }
         return $this->dispatcher->forward(
-                        [
-                            "controller" => "creditmemo",
-                            "action" => "search",
-                        ]
+              [
+                 "controller" => "creditmemo",
+                 "action" => "search",
+              ]
         );
-    }
+    }    
 
     public function impresionAction($TxnID) {
+        $parameters = array('conditions' => '[TxnID] = :txnid:', 'bind' => array('txnid' => $TxnID));
+        $credito = Creditmemo::findFirst($parameters);
+        if ($credito == false) {
+            $this->flash->error("Esta nota de credito no existe");
+            return $this->dispatcher->forward(
+                  [
+                     "controller" => "creditmemo",
+                     "action" => "index",
+                  ]
+            );
+        }
 
-        $this->_cargaCredito($TxnID);
-        $this->flash->success('Nota Credito del QB Seleccionada || ' . $credito->RefNumber);
+        $this->_registraCredito($credito);
+        
         $this->respuestaSRI(1);
         $credito->setCustomField10('IMPRESO');
         if (!$credito->save()) {
@@ -116,17 +133,17 @@ class CreditmemoController extends ControllerBase {
             }
 
             $this->dispatcher->forward([
-                'controller' => "creditmemo",
-                'action' => 'index',
+               'controller' => "creditmemo",
+               'action' => 'index',
             ]);
 
             return;
         }
         return $this->dispatcher->forward(
-                        [
-                            "controller" => "creditmemo",
-                            "action" => "search",
-                        ]
+              [
+                 "controller" => "creditmemo",
+                 "action" => "search",
+              ]
         );
     }
 
@@ -153,10 +170,10 @@ class CreditmemoController extends ControllerBase {
 
         $part = '<div><p><strong>FACTURACION ELECTRONICA LOS COQUEIROS</strong></p><br>
            <p>Estimado(a) </p><br><p><strong>' .
-                $w_cab['razonSocialComprador'] .
-                '</strong></p><br><p>Heladerías Cofrunat Cia. Ltda.,  le informa que se ha generado su comprobante electrónico,</p><br><p><strong>' .
-                $w_con['estab'] . '-' . $w_con['punto'] . '-' . $w_cab['numeroDocumento'] . '</strong></p><br> ' .
-                '<p>que adjuntamos en formato XML de acuerdo a los requerimientos del SRI.</p><br>
+           $w_cab['razonSocialComprador'] .
+           '</strong></p><br><p>Heladerías Cofrunat Cia. Ltda.,  le informa que se ha generado su comprobante electrónico,</p><br><p><strong>' .
+           $w_con['estab'] . '-' . $w_con['punto'] . '-' . $w_cab['numeroDocumento'] . '</strong></p><br> ' .
+           '<p>que adjuntamos en formato XML de acuerdo a los requerimientos del SRI.</p><br>
          <p>Podrá revisar este y todos sus documentos electrónicos en </p><br>
          <p>https://declaraciones.sri.gob.ec/comprobantes-electronicos-internet/\r\npublico/validezComprobantes.jsf?pathMPT=Facturaci%F3n%20Electr%F3nica&actualMPT=Validez%20de%20comprobantes\r\n
 
@@ -181,8 +198,8 @@ class CreditmemoController extends ControllerBase {
         $paraemail['bccemail']['nombre'] = $w_cab['razonSocialComprador'];
         $exp = $this->sendmail->enviaEmail($paraemail);
         return $exp;
-    }
-
+    }    
+    
     function notaAutorizada($param) {
         $w_cabecera = $this->session->get('cabecera');
         $TxnID = $w_cabecera["TxnID"];
@@ -192,15 +209,15 @@ class CreditmemoController extends ControllerBase {
             $this->flash->error("Nota de credito no existe " . $TxnID);
 
             $this->dispatcher->forward([
-                'controller' => "creditmemo",
-                'action' => 'index'
+               'controller' => "creditmemo",
+               'action' => 'index'
             ]);
             return;
         }
         $credit->customer->Email === NULL ? $email = "Sin Email" : $email = $credit->customer->Email;
         $credit->customer->Phone === NULL ? $phone = "Sin Telefono" : $phone = $credit->customer->Phone;
         $credit->customer->CompanyName === NULL ? $CompanyName = "" : $CompanyName = $credit->customer->CompanyName;
-
+ 
         $credit->setCustomField9($CompanyName);
         $credit->setCustomField11($phone);
         $credit->setCustomField12($email);
@@ -220,27 +237,36 @@ class CreditmemoController extends ControllerBase {
             }
 
             $this->dispatcher->forward([
-                'controller' => "creditmemo",
-                'action' => 'index',
+               'controller' => "creditmemo",
+               'action' => 'index',
             ]);
 
             return;
         }
         $this->flash->success("la nota de credito ahora esta " . $param['mensaje']);
     }
-
+    
     public function firmarAction($TxnID) {
-
-        $vinode = $this->session->get('vinode');
-
-        $this->_cargaCredito($TxnID);
-
-        $recibida = $this->firmaCredito($credito);
         
+        $vinode = $this->session->get('vinode');
+        $parameters = array('conditions' => '[TxnID] = :txnid:', 'bind' => array('txnid' => $TxnID));
+        $credito = Creditmemo::findFirst($parameters);
+        if ($credito == false) {
+            $this->flash->error("Esta nota de credito no existe");
+            return $this->dispatcher->forward(
+                  [
+                     "controller" => "creditmemo",
+                     "action" => "index",
+                  ]
+            );
+        }
+
+        $this->_registraCredito($credito);
+        
+        $this->firmaCredito($credito);
         if ($recibida === 'OK') {
             $autorizada = $this->soloautorizar($TxnID);
         }
-        
         if ($recibida != 'OK' && $autorizada != 'OK') {
             return $this->dispatcher->forward(
                             [
@@ -249,7 +275,6 @@ class CreditmemoController extends ControllerBase {
                             ]
             );
         }
-        
         if ($vinode) {
             $this->session->remove('vinode');
             return $this->dispatcher->forward(
@@ -266,7 +291,6 @@ class CreditmemoController extends ControllerBase {
                             ]
             );
         }
-        
     }
 
     private function firmaCredito($credito) {
@@ -280,13 +304,12 @@ class CreditmemoController extends ControllerBase {
 
         $this->totalCredito($credito);
         $mensaje = $this->claves->sriCliente($this->firmado, $this->ambiente);
-        if ($mensaje == "RECIBIDA") {
+        if ($mensaje == "RECIBIDA"){
+            $this->flash->success('EN ' . $this->txt_ambiente . $mensaje . ' la notaCR esta => ' . $mensaje);
             $param['mensaje'] = 'RECIBIDA';
             $this->notaAutorizada($param);
-            return 'OK';
         } else {
             $this->flash->error('EN ' . $this->txt_ambiente . $mensaje);
-            return 'ERROR';
         }
     }
 
@@ -301,7 +324,7 @@ class CreditmemoController extends ControllerBase {
         $this->firmado = $firmado;
         $pasaXML = $a['creado'];
         $regresaXML = $a['pasado'];
-
+        
         $paramClave['rucComprador'] = $credito->customer->AccountNumber;
         $paramClave['fechaDocumento'] = $w_cabecera['fechaDocumento'];
         $paramClave['numeroDocumento'] = $w_cabecera['numeroDocumento'];
@@ -342,9 +365,6 @@ class CreditmemoController extends ControllerBase {
         $stringInfo .= '<tipoIdentificacionComprador>' . $creaClave['tipoIdentificacion'] . '</tipoIdentificacionComprador>';
         $stringInfo .= '<razonSocialComprador>' . $regresaName . '</razonSocialComprador>';
         $stringInfo .= '<identificacionComprador>' . $creaClave['rucLimpio'] . '</identificacionComprador>';
-        /**
-         * Buscar donde poner estos campos 
-         */
 //        if ($w_cabecera['CustomField2'] != " ") {
 //        $stringInfo .= '<contribuyenteEspecial>' . $w_cabecera['CustomField2'] . '</contribuyenteEspecial>';
 //        }
@@ -400,7 +420,7 @@ class CreditmemoController extends ControllerBase {
         }
         $this->session->set('codigoTarifaImpuesto', $w_tipo);
         $this->session->set('porcentajeImpuesto', $w_impuesto);
-        $db_valor = $producto->Amount * $w_impuesto / 100;
+        $db_valor = $producto->Amount * $w_impuesto / 100;        
         $w_credito = $this->session->get('credito');
         $w_string = $this->session->get('stringDetalles');
         $subtotal = $w_credito['baseImponible'];
@@ -410,20 +430,20 @@ class CreditmemoController extends ControllerBase {
         $out_valor = number_format($db_valor, '2', '.', '');
         $out_Amount = number_format($producto->Amount, '2', '.', '');
         $item = $producto->items;
-        var_dump($item);
-        $regresaDescripcion = $this->claves->limpiaString($item->description);
+        $myArray = json_decode(json_encode($item), true); 
+        $regresaDescripcion = $this->claves->limpiaString($myArray['sales_desc']);
         $stringItem = '<detalle><codigoInterno>' . $producto->ItemRef_ListID . '</codigoInterno>';
-        $stringItem .= '<descripcion>' . $producto->ItemRef_FullName . '</descripcion><cantidad>' . $producto->Quantity . '</cantidad>';
+        $stringItem .= '<descripcion>' . $regresaDescripcion . '</descripcion><cantidad>' . $producto->Quantity . '</cantidad>';
         $stringItem .= '<precioUnitario>' . $producto->Rate . '</precioUnitario><descuento>0</descuento>';
         $stringItem .= '<precioTotalSinImpuesto>' . $out_Amount . '</precioTotalSinImpuesto>';
         $stringItem .= '<impuestos><impuesto><codigo>' . $this->session->get('codigoImpuesto') . '</codigo><codigoPorcentaje>' . $this->session->get('codigoTarifaImpuesto') . '</codigoPorcentaje>';
         $stringItem .= '<tarifa>' . $this->session->get('porcentajeImpuesto') . '</tarifa><baseImponible>' . $out_Amount . '</baseImponible><valor>' . $out_valor . '</valor></impuesto></impuestos></detalle>';
 
         $this->session->set('credito', array(
-            'baseImponible' => $subtotal + $producto->Amount,
-            'valorImpuestos' => $subtotalImpuestos + $db_valor,
-            'valorSinImpuestos' => $subtotalSinImpuestos + $producto->Amount,
-            'valorTotal' => $valorTotal + $producto->Amount + $db_valor
+           'baseImponible' => $subtotal + $producto->Amount,
+           'valorImpuestos' => $subtotalImpuestos + $db_valor,
+           'valorSinImpuestos' => $subtotalSinImpuestos + $producto->Amount,
+           'valorTotal' => $valorTotal + $producto->Amount + $db_valor
         ));
         $w_string .= $stringItem;
         $this->session->set('stringDetalles', $w_string);
@@ -433,54 +453,55 @@ class CreditmemoController extends ControllerBase {
     private function _registraCredito($arreglo) {
 
         $doc = $this->claves->generaDoc($arreglo->RefNumber);                   // convierte la notacion 1-1-1 a 001-001-000000001
-        $factura = Invoice::findFirstByTxnID($arreglo->other);              // bsca el numero de factura generada para la nota de credito en el QB
-        if ($factura == false) {
+        $factura = Invoice::findFirstByTxnID($arreglo->Other);              // bsca el numero de factura generada para la nota de credito en el QB
+        
+        if (!$factura) {
             $fechSustento = date('d-m-Y');
         } else {
             $fechSustento = date('d-m-Y', strtotime($factura->TxnDate));
-        }
+        }        
         $this->session->set('cabecera', array(
-            'TxnID' => $arreglo->TxnID,
-            'TimeCreated' => $arreglo->TimeCreated,
-            'TimeModified' => $arreglo->TimeModified,
-            'EditSequence' => $arreglo->EditSequence,
-            'numeroTransaccion' => $arreglo->TxnNumber,
-            'CustomerRef_ListID' => $arreglo->CustomerRef_ListID,
-            'razonSocialComprador' => $arreglo->CustomerRef_FullName,
-            'fechaDocumento' => $arreglo->TxnDate,
-            'fechaPago' => $arreglo->DueDate,
-            'docSustento' => $arreglo->Other,
-            'Memo' => $arreglo->Memo,
-            'fechaSustento' => $fechSustento,
-            'numeroDocumento' => $doc['documento'],
-            'direccionComprador' => $arreglo->BillAddress_Addr1,
-            'BillAddress_City' => $arreglo->BillAddress_City,
-            'BillAddress_State' => $arreglo->BillAddress_State,
-            'BillAddress_PostalCode' => $arreglo->BillAddress_PostalCode,
-            'BillAddress_Country' => $arreglo->BillAddress_Country,
-            'SalesRepRef_FullName' => $arreglo->SalesRepRef_FullName,
-            'CustomerMsgRef_FullName' => $arreglo->CustomerMsgRef_FullName,
-            'Subtotal' => $arreglo->Subtotal,
-            'SalesTaxPercentage' => $arreglo->SalesTaxPercentage,
-            'SalesTaxTotal' => $arreglo->SalesTaxTotal,
-            'TotalAmount' => $arreglo->TotalAmount,
-            'CustomField1' => $arreglo->CustomField1,
-            'CustomField2' => $arreglo->CustomField2,
-            'CustomField3' => $arreglo->CustomField3,
-            'CustomField4' => $arreglo->CustomField4,
-            'CustomField9' => $arreglo->CustomField9,
-            'CustomField11' => $arreglo->CustomField11,
-            'CustomField12' => $arreglo->CustomField12,
-            'CustomField13' => $arreglo->CustomField13,
-            'CustomField14' => $arreglo->CustomField14,
-            'CustomField15' => $arreglo->CustomField15
+           'TxnID' => $arreglo->TxnID,
+           'TimeCreated' => $arreglo->TimeCreated,
+           'TimeModified' => $arreglo->TimeModified,
+           'EditSequence' => $arreglo->EditSequence,
+           'numeroTransaccion' => $arreglo->TxnNumber,
+           'CustomerRef_ListID' => $arreglo->CustomerRef_ListID,
+           'razonSocialComprador' => $arreglo->CustomerRef_FullName,
+           'fechaDocumento' => $arreglo->TxnDate,
+           'fechaPago' => $arreglo->DueDate,
+           'docSustento' => $arreglo->Other,
+           'Memo' => $arreglo->Memo,
+           'fechaSustento' => $fechSustento,
+           'numeroDocumento' => $doc['documento'],
+           'direccionComprador' => $arreglo->BillAddress_Addr1,
+           'BillAddress_City' => $arreglo->BillAddress_City,
+           'BillAddress_State' => $arreglo->BillAddress_State,
+           'BillAddress_PostalCode' => $arreglo->BillAddress_PostalCode,
+           'BillAddress_Country' => $arreglo->BillAddress_Country,
+           'SalesRepRef_FullName' => $arreglo->SalesRepRef_FullName,
+           'CustomerMsgRef_FullName' => $arreglo->CustomerMsgRef_FullName,
+           'Subtotal' => $arreglo->Subtotal,
+           'SalesTaxPercentage' => $arreglo->SalesTaxPercentage,
+           'SalesTaxTotal' => $arreglo->SalesTaxTotal,
+           'TotalAmount' => $arreglo->TotalAmount,
+           'CustomField1' => $arreglo->CustomField1,
+           'CustomField2' => $arreglo->CustomField2,
+           'CustomField3' => $arreglo->CustomField3,
+           'CustomField4' => $arreglo->CustomField4,
+           'CustomField9' => $arreglo->CustomField9,
+           'CustomField11' => $arreglo->CustomField11,
+           'CustomField12' => $arreglo->CustomField12,
+           'CustomField13' => $arreglo->CustomField13,
+           'CustomField14' => $arreglo->CustomField14,
+           'CustomField15' => $arreglo->CustomField15
         ));
         $this->session->set('credito', array(
-            'baseImponible' => 0,
-            'valorImpuestos' => 0,
-            'valorSinImpuestos' => 0,
-            'valorDescuentos' => 0,
-            'valorTotal' => 0
+           'baseImponible' => 0,
+           'valorImpuestos' => 0,
+           'valorSinImpuestos' => 0,
+           'valorDescuentos' => 0,
+           'valorTotal' => 0
         ));
         $this->session->set('codigoImpuesto', '2');
         $this->session->set('porcentajeImpuesto', '12');
@@ -490,15 +511,15 @@ class CreditmemoController extends ControllerBase {
         if ($contribuyente == false) {
             $this->flash->error("Este contribuyente no existe");
             return $this->dispatcher->forward(
-                            [
-                                "controller" => "creditmemo",
-                                "action" => "search",
-                            ]
+                  [
+                     "controller" => "creditmemo",
+                     "action" => "search",
+                  ]
             );
         }
         $rucPasa = $this->claves->registraContribuyente($contribuyente);
         $this->session->set('contribuyente', $rucPasa);
-        $archivos = $this->claves->registraArchivos($rucPasa['estab'], $rucPasa['punto'], $doc['documento'], 'nota', 'notas');
+        $archivos = $this->claves->registraArchivos($rucPasa['estab'], $rucPasa['punto'], $doc['documento'],'nota', 'notas');
         $this->session->set('archivos', $archivos);
         $c = $this->session->get('contribuyente');
         $a = $this->session->get('archivos');

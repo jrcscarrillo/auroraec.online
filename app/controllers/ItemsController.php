@@ -44,7 +44,7 @@ class ItemsController extends ControllerBase {
 
         $paginator = new Paginator([
             'data' => $items,
-            'limit' => 10,
+            'limit' => 100,
             'page' => $numberPage
         ]);
 
@@ -73,9 +73,9 @@ class ItemsController extends ControllerBase {
                            $this->tag->setDefault("id", $item->getid());
                            $this->tag->setDefault("barcode", $item->getBarCode());
                            $this->tag->setDefault("tipoIva", $item->getItemSalesTaxRefListID());
-                           $this->tag->setDefault("name", $item->getname());
+                           $this->tag->setDefault("name", $item->getnombre());
                            $this->tag->setDefault("fullname", $item->getfullname());
-                           $this->tag->setDefault("description", $item->getdescription());
+                           $this->tag->setDefault("description", $item->getdescripcion());
                            $this->tag->setDefault("sales_desc", $item->getsales_desc());
                            $this->tag->setDefault("sales_price", $item->getsales_price());
         }
@@ -162,9 +162,9 @@ class ItemsController extends ControllerBase {
         $form = new ItemsEditForm();
 
         $data = $this->request->getPost();
-        $items->setname($this->request->getPost('name'));
+        $items->setnombre($this->request->getPost('name'));
         $items->setfullname($this->request->getPost('fullname'));
-        $items->setdescription($this->request->getPost('description'));
+        $items->setdescripcion($this->request->getPost('description'));
         $items->setsales_desc($this->request->getPost('sales_desc'));
         $items->setsales_price($this->request->getPost('sales_price'));
         $items->setBarcode($this->request->getPost('barcode'));

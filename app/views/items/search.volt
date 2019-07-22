@@ -29,29 +29,29 @@
             <table id="table-search" class="table coqueirosb table-responsive table-bordered table-striped table-hover" align="center">
                 <thead>
                     <tr>
-                        <th>Nombre Corto</th>
-                        <th>Nombre Largo</th>
-                        <th>Descripcion de Ventas</th>
+                        <th class="tb-gen tb-c15">Nombre Corto</th>
+                        <th class="tb-gen tb-c1">Descripcion de Ventas</th>
                         
-                        <th>Codigo</th>
+                        <th class="tb-gen tb-c30">Codigo Interno</th>
+                        <th class="tb-gen tb-c10">Codigo de Barras</th>
 
-                        <th>Precio de Venta</th>
+                        <th class="tb-gen tb-c5">Precio de Venta</th>
 
-                        <th>Cambiar</th>
-                        <th>Eliminar</th>
+                        <th class="tb-gen tb-c5">Cambiar</th>
+                        <th class="tb-gen tb-c5">Eliminar</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if page.items is defined %}
                         {% for item in page.items %}
                             <tr>
-                                <td>{{ item.fullname }}</td>
-                                <td>{{ item.description }}</td>
-                                <td>{{ item.sales_desc }}</td>
+                                <td>{{ item.getfullname() }}</td>
+                                <td>{{ item.getsales_desc() }}</td>
                                 
-                                <td>{{ item.name }}</td>
+                                <td>{{ item.getnombre() }}</td>
+                                <td>{{ item.getBarCode() }}</td>
 
-                                <td>{{ item.sales_price }}</td>
+                                <td>{{ item.getsales_price() }}</td>
                                 <td style="text-align:center;">{{ link_to("items/edit/"~item.id, '<i class="fa fa-pencil-square-o" aria-hidden="true" style="font-size:24px;color:green;"></i>') }}</td>
                                 <td style="text-align:center;">{{ link_to("items/delete/"~item.id, '<i class="fa fa-trash-o" aria-hidden="true" style="font-size:24px;color:green;"></i>') }}</td>                        
                             </tr>

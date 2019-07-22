@@ -3,7 +3,7 @@
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Numeric;
 use Phalcon\Validation\Validator\PresenceOf;
-use ValidaNCRValidator;
+use \base\ValidaNCRValidator;
 
 class ProductosCRForm extends Form {
 

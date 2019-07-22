@@ -30,18 +30,18 @@
             <table id="table-search" class="table coqueirosb table-responsive table-bordered table-striped table-hover" align="center">
                 <thead>
                     <tr>
-                        <th class="tb-gen tb-c5">Ruc</th>
-                        <th class="tb-gen tb-c10">Razon</th>
+                        <th class="tb-gen tb-c4">Ruc</th>
+                        <th class="tb-gen tb-c15">Razon</th>
                         <th class="tb-gen tb-c20">NombreComercial</th>
                         <th class="tb-gen tb-c20">DirMatriz</th>
                         <th class="tb-gen tb-c20">DirEmisor</th>
-                        <th class="tb-gen tb-c5">Estab</th>
-                        <th class="tb-gen tb-c5">Punto</th>
-                        <th class="tb-gen tb-c5">Ambiente</th>
-                        <th class="tb-gen tb-c5">Emision</th>
-                        <th class="tb-gen tb-c2">Editar</th>
-                        <th class="tb-gen tb-c2">Borrar</th>
-                        <th class="tb-gen tb-c2">Selecc</th>
+                        <th class="tb-gen tb-c3">Estab</th>
+                        <th class="tb-gen tb-c3">Punto</th>
+                        <th class="tb-gen tb-c3">Ambiente</th>
+                        <th class="tb-gen tb-c3">Emision</th>
+                        <th class="tb-gen tb-c3">Editar</th>
+                        <th class="tb-gen tb-c3">Borrar</th>
+                        <th class="tb-gen tb-c3">Selecc</th>
                     </tr>
                 </thead>
                 <tbody>

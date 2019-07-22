@@ -21,7 +21,7 @@ class Invoicelinedetail extends \Phalcon\Mvc\Model {
     protected $OverrideUOMSetRef_ListID;
     protected $OverrideUOMSetRef_FullName;
     protected $Rate;
-    protected $RatePercent;
+    protected $TaxRate;
     protected $ClassRef_ListID;
     protected $ClassRef_FullName;
     protected $Amount;
@@ -68,7 +68,7 @@ class Invoicelinedetail extends \Phalcon\Mvc\Model {
         $this->OverrideUOMSetRef_ListID = ' ';
         $this->OverrideUOMSetRef_FullName = ' ';
         $this->Rate = ' ';
-        $this->RatePercent = ' ';
+        $this->TaxRate = ' ';
         $this->ClassRef_ListID = ' ';
         $this->ClassRef_FullName = ' ';
         $this->Amount = ' ';
@@ -213,13 +213,13 @@ class Invoicelinedetail extends \Phalcon\Mvc\Model {
     }
 
     /**
-     * Method to set the value of field RatePercent
+     * Method to set the value of field TaxRate
      *
-     * @param string $RatePercent
+     * @param string $TaxRate
      * @return $this
      */
-    public function setRatePercent($RatePercent) {
-        $this->RatePercent = $RatePercent;
+    public function setTaxRate($TaxRate) {
+        $this->TaxRate = $TaxRate;
 
         return $this;
     }
@@ -702,12 +702,12 @@ class Invoicelinedetail extends \Phalcon\Mvc\Model {
     }
 
     /**
-     * Returns the value of field RatePercent
+     * Returns the value of field TaxRate
      *
      * @return string
      */
-    public function getRatePercent() {
-        return $this->RatePercent;
+    public function getTaxRate() {
+        return $this->TaxRate;
     }
 
     /**

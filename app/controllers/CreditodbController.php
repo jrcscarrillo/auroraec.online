@@ -88,9 +88,9 @@ class CreditodbController extends ControllerBase {
             $paraforma['items'][$i]['ItemRefListID'] = $item->getItemRefListID();
             $paraforma['items'][$i]['ItemRefFullName'] = $item->getItemRefFullName();
             $paraforma['items'][$i]['Rate'] = $item->getRate();
+            $paraforma['items'][$i]['TaxRate'] = $item->getTaxRate();
             $paraforma['items'][$i]['Quantity'] = $item->getQuantity();
             $paraforma['items'][$i]['Amount'] = $item->getAmount();
-
             $campo1 = 'cantidad' . $i;
             $campo2 = 'preciounitario' . $i;
             $campo3 = 'preciototal' . $i;
@@ -266,11 +266,56 @@ class CreditodbController extends ControllerBase {
         $paraforma = $this->session->get('paraforma');
 
         if ($paraforma['tiponotacr'] == 29) {
-            $this->paraproductos();
+            $this->paravalores();
         } elseif ($paraforma['tiponotacr'] == 30) {
             $this->paraproductos();
         } elseif ($paraforma['tiponotacr'] == 31) {
             $this->paradescuentos();
+        }
+    }
+
+    public function paravalores() {
+        /**
+         * 
+         * @return no return
+         * Para la nota de credito solo por valores
+         * @param decimal $valor1
+         * @param decimal 
+         * @param decimal 
+         */
+        $paraforma = $this->session->get('paraforma');
+
+        $errCR = false;
+        $erroresNCR = array();
+
+        $productos = $paraforma['items'];
+        $subtotal = 0;
+        $total = 0;
+        $iva = 0;
+            $campo1 = 'cantidad1';
+            $campo2 = 'preciounitario1';
+            $campo3 = 'preciototal1';
+            $paraforma['items'][$index][$campo1] = 1;
+            $paraforma['items'][$index][$campo2] = $this->request->getPost($campo2);
+            if ($paraforma['items'][$index]['Rate'] < $this->request->getPost($campo2)) {
+                $errCR = true;
+                $erroresNCR[$index]['ItemRefFullName'] = $paraforma['items'][$index]['ItemRefFullName'];
+            } else {
+                $paraforma['items'][$index][$campo3] = $paraforma['items'][$index]['Quantity'] * floatval($this->request->getPost($campo2));
+            }
+        $this->session->remove('paraforma');
+        $this->session->set('paraforma', $paraforma);
+        if ($errCR) {
+            $this->session->set('erroresNCR', $erroresNCR);
+            return $this->dispatcher->forward([
+                        "action" => "descuentos",
+                        "params" => [$paraforma['numerofactura'], $paraforma['numeronotacr']]
+            ]);
+        } else {
+            $this->session->remove('erroresNCR');
+            return $this->dispatcher->forward([
+                        "action" => "acreditar"
+            ]);
         }
     }
 
@@ -297,6 +342,7 @@ class CreditodbController extends ControllerBase {
             $campo1 = 'cantidad' . $index;
             $campo2 = 'preciounitario' . $index;
             $campo3 = 'preciototal' . $index;
+            $paraforma['items'][$index][$campo1] = $paraforma['items'][$index]['Quantity']; 
             $paraforma['items'][$index][$campo2] = $this->request->getPost($campo2);
             if ($paraforma['items'][$index]['Rate'] < $this->request->getPost($campo2)) {
                 $errCR = true;
@@ -338,11 +384,12 @@ class CreditodbController extends ControllerBase {
             $campo2 = 'preciounitario' . $index;
             $campo3 = 'preciototal' . $index;
             $paraforma['items'][$index][$campo1] = $this->request->getPost($campo1);
+            $paraforma['items'][$index][$campo2] = $paraforma['items'][$index]['Rate']; 
             if ($paraforma['items'][$index]['Quantity'] < $this->request->getPost($campo1)) {
                 $errCR = true;
                 $erroresNCR[$index]['ItemRefFullName'] = $paraforma['items'][$index]['ItemRefFullName'];
             } else {
-                $paraforma['items'][$index][$campo3] = $paraforma['items'][$index]['Rate'] * floatval($this->request->getPost($campo1));
+                $paraforma['items'][$index][$campo3] = $paraforma['items'][$index][$campo2] * floatval($this->request->getPost($campo1));
             }
         }
         $this->session->remove('paraforma');
@@ -375,19 +422,29 @@ class CreditodbController extends ControllerBase {
         $creditmemo = new Creditmemo();
         $creditmemo = Creditmemo::findFirstByTxnID($numeronotacr);
 
+        $iva = 0;
+        $totaliva = 0;
+        $subtotal = 0;
+        
         $l = count($paraforma['items']) + 1;
         for ($index = 1; $index < $l; $index++) {
             $campo1 = 'cantidad' . $index;
             $campo2 = 'preciounitario' . $index;
             $campo3 = 'preciototal' . $index;
             $creditmemodetail = new Creditmemolinedetail();
-            $creditmemodetail->setAmount($paraforma['items'][$index]['Rate'] * $paraforma['items'][$index][$campo1]);
+            $creditmemodetail->setAmount($paraforma['items'][$index][$campo2] * $paraforma['items'][$index][$campo1]);
             $creditmemodetail->setItemRefListID($paraforma['items'][$index]['ItemRefListID']);
             $creditmemodetail->setItemRefFullName($paraforma['items'][$index]['ItemRefFullName']);
             $creditmemodetail->setQuantity($paraforma['items'][$index][$campo1]);
-            $creditmemodetail->setRate($paraforma['items'][$index]['Rate']);
+            $creditmemodetail->setRate($paraforma['items'][$index][$campo2]);
+            $creditmemodetail->setTaxRate($paraforma['items'][$index]['TaxRate']);
             $creditmemodetail->setTxnLineID($paraforma['numeronotacr'] . '-' . $index);
             $creditmemodetail->setIDKEY($paraforma['numeronotacr']);
+            
+            $iva = ($paraforma['items'][$index][$campo2] * $paraforma['items'][$index][$campo1] ) * ($paraforma['items'][$index]['TaxRate'] / 100);
+            $totaliva = ($iva + $totaliva);
+            $subtotal = $subtotal + ($paraforma['items'][$index][$campo2] * $paraforma['items'][$index][$campo1]);
+            
             $erroresNCR = array();
             if (!$creditmemodetail->save()) {
                 foreach ($creditmemodetail->getMessages() as $message) {
@@ -400,9 +457,16 @@ class CreditodbController extends ControllerBase {
                 ]);
             }
         }
-        $creditmemo->setSubtotal($val);
+        $creditmemo->setSubtotal($subtotal);
+        $creditmemo->setSalesTaxTotal($totaliva);
+        $creditmemo->setTotalAmount($subtotal + $totaliva);
         $creditmemo->setStatus('GRABADO');
-        $creditmemo->save();
+        if (!$creditmemo->save()) {
+            $this->flash->error("No se ha podido actualizar nota de credito " . $numeronotacr);
+            foreach ($creditmemo->getMessages() as $message) {
+                $erroresNCR[$index]['ItemRefFullName'] = $paraforma['numeronotacr'] . ' actualizando cabecera ' . $message;
+            }
+        }
         $this->session->set('vinode', 'Proceso Ventas');
         $this->view->paraforma = $paraforma;
         $this->view->ruc = $ruc;

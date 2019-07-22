@@ -34,13 +34,13 @@
                         <th class="tb-gen tb-c25">Direccion</th>
                         <th class="tb-gen tb-c25">Nombres/Razon </th>
                         <th class="tb-gen tb-c10">Fecha Emision</th>
-                        <th class="tb-gen tb-c15">Numero Factura</th>
+                        <th class="tb-gen tb-c10">Numero Factura</th>
 
-                        <th class="tb-gen tb-c2">Vendedor</th>
-                        <th class="tb-gen tb-c5">Subtotal</th>
-                        <th class="tb-gen tb-c5">Valor IVA</th>
-                        <th class="tb-gen tb-c5">Total</th>
-                        <th class="tb-gen tb-c2">Estado SRI</th>
+                        <th class="tb-gen tb-c4">Vendedor</th>
+                        <th class="tb-gen tb-c5" style="text-align:right;">Subtotal</th>
+                        <th class="tb-gen tb-c5" style="text-align:right;">Valor IVA</th>
+                        <th class="tb-gen tb-c5" style="text-align:right;">Total</th>
+                        <th class="tb-gen tb-c5">Estado SRI</th>
 
                         <th class="tb-gen tb-c2">Firma</th>
                         <th class="tb-gen tb-c2">Autrza</th>

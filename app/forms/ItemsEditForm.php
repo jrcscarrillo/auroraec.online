@@ -57,7 +57,7 @@ class ItemsEditForm extends Form {
         ));
         $this->add($sales_desc);
 
-        $sales_price = new Numeric("sales_price");
+        $sales_price = new Numeric("sales_price", array("step" => "any"));
         $sales_price->setLabel("Precio de Venta");
         $sales_price->addValidators(array(
             new PresenceOf(array(

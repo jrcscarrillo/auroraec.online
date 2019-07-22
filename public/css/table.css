@@ -503,6 +503,60 @@ table.coqueirosy tfoot td {
 .table-hovery tbody tr:hover td, .table-hovery tbody tr:hover th {
   background-color: #AA9339;
 }
+.tb-gen {
+    color: black;
+    background-color: #FFF1C6;
+    font-size: 18px;
+    font-weight: bold;
+}
+.tb-c1 {
+  width:14px; 
+  max-width:14px;
+  min-width:14px; 
+  overflow:hidden;
+}
+.tb-c2 {
+  width:29px; 
+  max-width:29px;
+  min-width:29px; 
+  overflow:hidden;
+}
+.tb-c5 {
+  width:74px; 
+  max-width:74px;
+  min-width:74px; 
+  overflow:hidden;
+}
+.tb-c10 {
+  width:146px; 
+  max-width:146px;
+  min-width:146px; 
+  overflow:hidden;
+}
+.tb-c15 {
+  width:220px; 
+  max-width:220px;
+  min-width:220px; 
+  overflow:hidden;
+}
+.tb-c20 {
+  width:292px; 
+  max-width:292px;
+  min-width:292px; 
+  overflow:hidden;
+}
+.tb-c25 {
+  width:366px; 
+  max-width:366px;
+  min-width:366px; 
+  overflow:hidden;
+}
+.tb-c30 {
+  width:438px; 
+  max-width:438px;
+  min-width:438px; 
+  overflow:hidden
+}
 /* tab color */
 .navegay {
   border-radius: 12px;
