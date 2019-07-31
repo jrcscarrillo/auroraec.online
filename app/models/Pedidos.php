@@ -240,7 +240,7 @@ class Pedidos extends \Phalcon\Mvc\Model {
     }
 
     public function initialize() {
-        $this->setSchema("carrillo_dbaurora");
+        $this->setSchema("coopdb");
         $this->setSource("pedidos");
         $this->hasMany('TxnID', 'Pedidosdetalle', 'IDKEY');
         $this->hasMany('TxnID', 'Bonificadetalle', 'IDKEY');

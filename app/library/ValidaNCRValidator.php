@@ -1,13 +1,12 @@
 <?php
 
-namespace base;
 
 use Phalcon\Validation as validador;
 use Phalcon\Validation\Message;
 use Phalcon\Validation\Validator;
 use Phalcon\Validation\ValidatorInterface;
 
-class ValidaInvoiceValidator extends Validator implements ValidatorInterface {
+class ValidaNCRValidator extends Validator implements ValidatorInterface {
 
     /**
      *
@@ -16,21 +15,26 @@ class ValidaInvoiceValidator extends Validator implements ValidatorInterface {
      *
      * @return boolean
      */
-    public function validate($validator, $attribute) {
+    public function validate(Phalcon\Validation $validator, $attribute) {
         //obtain the name of the field 
+        $elcorreo = $this->getOption("correo");
 
         //obtain field value
+        $elcorreo_value = $validator->getValue($elcorreo);
 
         // obtain the input field value
-        $lafactura  = $validator->getValue($attribute);
+        $elpassword = $validator->getValue($attribute);
 
         //try to obtain message defined in a validator
         $message = $this->getOption('message');
 
         //check if the value is valid
-        $invoice = Invoice::findFirstByTxnID($lafactura);
-        if (!$invoice) {
-            $message = 'NO esta registrada en nuestra base de datos el numero de esta factura - Vuelva ha intentarlo';
+        $user = Users::findFirst(array(
+                    "(email = :email: OR username = :email:) AND password = :password: AND active = 'Y'",
+                    'bind' => array('email' => $elcorreo_value, 'password' => sha1($elpassword))
+        ));
+        if (!$user) {
+            $message = 'NO estan registrados en nuestra base de datos el correo o la palabra clave - Vuelva ha intentarlo';
             $validator->appendMessage(new Message($message, $attribute, 'usuario'));
         }
         if (count($validator->getMessages())) {

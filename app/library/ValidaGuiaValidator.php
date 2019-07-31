@@ -1,6 +1,5 @@
 <?php
 
-namespace base;
 
 use Phalcon\Validation as validador;
 use Phalcon\Validation\Message;
@@ -16,7 +15,7 @@ class ValidaGuiaValidator extends Validator implements ValidatorInterface {
      *
      * @return boolean
      */
-    public function validate($validator, $attribute) {
+    public function validate(Phalcon\Validation $validator, $attribute) {
         //obtain the name of the field 
         $with = $this->getOption("with");
 

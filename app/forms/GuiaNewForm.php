@@ -142,5 +142,12 @@ class GuiaNewForm extends Form {
         $this->add($motive);
 
     }
-
+   public function messages($nombre)
+    {
+        if ($this->hasMessagesFor($nombre)) {
+            foreach ($this->getMessagesFor($nombre) as $mensaje) {
+                $this->flash->error($mensaje);
+            }
+        }
+    }
 }

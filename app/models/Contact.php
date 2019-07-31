@@ -49,7 +49,7 @@ class Contact extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->setSchema("carrillo_dbaurora");
+        $this->setSchema("coopdb");
     }
 
     /**

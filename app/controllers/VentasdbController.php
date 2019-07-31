@@ -35,6 +35,10 @@ class VentasdbController extends ControllerBase {
         $parameters = array('order' => 'TimeModified DESC', 'limit' => 1);
         $invoice = new Invoice();
         $invoice = Invoice::findFirst($parameters);
+        $this->view->hayonohay = "SI";
+        if(!$invoice){
+        $this->view->hayonohay = "NO";    
+        }
         $form = new NuevoTicketForm;
 
         if ($this->request->isPost()) {
@@ -316,7 +320,7 @@ class VentasdbController extends ControllerBase {
         $ticketline->setTimeModified($fecha);
         $ticketline->setItemRefListID($this->request->getPost("ItemRefListID"));
         $ticketline->setItemRefFullName($item->getsales_desc());
-        if ($item->gettype() === 'Assembly') {
+        if ($item->gettipo() === 'Assembly') {
             $ticketline->setQty($this->request->getPost("qty"));
             $ticketline->setPrice($item->getsales_price());
             $ticketline->setSubTotal($item->getsales_price() * $this->request->get('qty'));
@@ -437,6 +441,7 @@ class VentasdbController extends ControllerBase {
         $invoice->setTimeModified($fecha);
         $invoice->setTxnDate($ticket->getTxnDate());
         $invoice->setTxnNumber($ticket->getFnumero());
+        $invoice->setCustomField8($ticket->getGestab() . '-' . $ticket->getGpunto() . '-' . $ticket->getGnumero());
         $invoice->setTxnID($ticket->getFestab() . '-' . $ticket->getFpunto() . '-' . $ticket->getFnumero());
 /**
  *  Vamos a guardar el tipo de facturacion en el campo other
@@ -467,7 +472,7 @@ class VentasdbController extends ControllerBase {
             $invoicedetail->setAmount($producto->getSubTotal());
             $invoicedetail->setClassRefFullName($cliente->getClassRefFullName());
             $invoicedetail->setClassRefListID($cliente->getClassRefListID());
-            $invoicedetail->setDescription($item->getname());
+            $invoicedetail->setDescription($item->getsales_desc());
             $invoicedetail->setIDKEY($ticket->getFestab() . '-' . $ticket->getFpunto() . '-' . $ticket->getFnumero());
             $invoicedetail->setItemRefFullName($item->getfullname());
             $invoicedetail->setItemRefListID($item->getquickbooks_listid());

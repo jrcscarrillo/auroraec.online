@@ -251,7 +251,7 @@ $this->GroupIDKEY =  $val;
 }
     public function initialize()
     {
-        $this->setSchema("carrillo_dbaurora");
+        $this->setSchema("coopdb");
         $this->setSource("pricelevelperitemdetail");
         $this->belongsTo('IDKEY', 'Pricelevel', 'ListID', ['alias' => 'Pricelevel']);
     }

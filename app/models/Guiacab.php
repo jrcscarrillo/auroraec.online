@@ -15,6 +15,7 @@ class Guiacab extends \Phalcon\Mvc\Model {
     protected $txnDate;
     protected $origenId;
     protected $origenName;
+    protected $tipoDestino;
     protected $destinoId;
     protected $destinoName;
     protected $driverId;
@@ -70,6 +71,10 @@ class Guiacab extends \Phalcon\Mvc\Model {
 
     function getorigenName() {
         return $this->origenName;
+    }
+
+    function gettipoDestino() {
+        return $this->tipoDestino;
     }
 
     function getdestinoId() {
@@ -185,6 +190,10 @@ class Guiacab extends \Phalcon\Mvc\Model {
         $this->origenName = $val;
     }
 
+    function settipoDestino($val) {
+        $this->tipoDestino = $val;
+    }
+
     function setdestinoId($val) {
         $this->destinoId = $val;
     }
@@ -262,7 +271,7 @@ class Guiacab extends \Phalcon\Mvc\Model {
     }
 
     public function initialize() {
-        $this->setSchema("carrillo_dbaurora");
+        $this->setSchema("coopdb");
         $this->setSource("guiacab");
         $this->hasMany('txnID', 'Guiatrx', 'IDKEY');
     }

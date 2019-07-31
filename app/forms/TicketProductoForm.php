@@ -25,7 +25,7 @@ class TicketProductoForm extends Form {
         $destipo = $tipofactura['destipo'];
         $item = Items::find([
             "columns" => "sales_desc, quickbooks_listid",
-            "conditions" => "type = ?1",
+            "conditions" => "tipo = ?1",
             "bind"       => [1 => $destipo]
            ]); 
         $ItemRefListID = new Select(

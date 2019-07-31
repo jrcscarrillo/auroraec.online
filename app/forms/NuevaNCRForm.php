@@ -8,7 +8,6 @@ use Phalcon\Forms\Element\Select;
 use Phalcon\Forms\Element\Numeric;
 use Phalcon\Validation\Validator\PresenceOf;
 use Phalcon\Validation\Validator\Regex;
-use \base\ValidaInvoiceValidator;
 
 class NuevaNCRForm extends Form {
 

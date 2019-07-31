@@ -201,7 +201,7 @@ class Pedidosdetalle extends \Phalcon\Mvc\Model {
      * Initialize method for model.
      */
     public function initialize() {
-        $this->setSchema("carrillo_dbaurora");
+        $this->setSchema("coopdb");
         $this->setSource("pedidosdetalle");
         $this->belongsTo('IDKEY', 'Pedidos', 'TxnID', ['alias' => 'Pedidos']);
     }

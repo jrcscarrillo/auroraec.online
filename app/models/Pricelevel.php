@@ -141,7 +141,7 @@ $this->Status =  $val;
 
 public function initialize()
     {
-        $this->setSchema("carrillo_dbaurora");
+        $this->setSchema("coopdb");
         $this->setSource("pricelevel");
         $this->hasMany('ListID', 'Pricelevelperitemdetail', 'IDKEY', ['alias' => 'Pricelevelperitemdetail']);
     }

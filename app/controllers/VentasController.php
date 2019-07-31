@@ -291,7 +291,7 @@ class VentasController extends ControllerBase {
         $ticketline->setTimeModified($fecha);
         $ticketline->setItemRefListID($this->request->getPost("ItemRefListID"));
         $ticketline->setItemRefFullName($item->getsales_desc());
-        if ($item->gettype() === 'Assembly') {
+        if ($item->gettipo() === 'Assembly') {
             $ticketline->setQty($this->request->getPost("qty"));
             $ticketline->setPrice($item->getsales_price());
             $ticketline->setSubTotal($item->getsales_price() * $this->request->get('qty'));

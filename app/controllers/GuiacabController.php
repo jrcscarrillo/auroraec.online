@@ -25,18 +25,18 @@ class GuiacabController extends ControllerBase {
         if ($guiacab == false) {
             $this->flash->error("Esta guia de remision no existe");
             return $this->dispatcher->forward(
-                  [
-                     "action" => "index",
-                  ]
+                            [
+                                "action" => "index",
+                            ]
             );
         }
 
         if ($guiacab->CustomField15 <> 'GRABADO' && $guiacab->CustomField15 <> 'SIN FIRMAR') {
             $this->flash->error("Esta guia de remision no esta GRABADA " . $refNumber);
             return $this->dispatcher->forward(
-                  [
-                     "action" => "index",
-                  ]
+                            [
+                                "action" => "index",
+                            ]
             );
         }
 
@@ -46,14 +46,14 @@ class GuiacabController extends ControllerBase {
                 $this->flash->error($message);
             }
             return $this->dispatcher->forward([
-                  'action' => 'index'
+                        'action' => 'index'
             ]);
         }
 
         $this->flash->success("Guia de remision aprobada " . $refNumber);
 
         $this->dispatcher->forward([
-           'action' => "search"
+            'action' => "search"
         ]);
     }
 
@@ -77,24 +77,26 @@ class GuiacabController extends ControllerBase {
             $this->flash->notice("No se encontraron guias de remision que cumplan con los parametros de busqueda");
 
             $this->dispatcher->forward([
-               "controller" => "guiacab",
-               "action" => "index"
+                "controller" => "guiacab",
+                "action" => "index"
             ]);
 
             return;
         }
 
         $paginator = new Paginator([
-           'data' => $guiacab,
-           'limit' => 10,
-           'page' => $numberPage
+            'data' => $guiacab,
+            'limit' => 10,
+            'page' => $numberPage
         ]);
 
         $this->view->page = $paginator->getPaginate();
     }
 
     public function newAction() {
+        $ruc = $this->session->get('contribuyente');
         $this->view->form = new GuiaNewForm;
+        $this->view->ruc = $ruc;
     }
 
     public function firmarAction($refNumber) {
@@ -103,9 +105,9 @@ class GuiacabController extends ControllerBase {
         if ($guiacab == false) {
             $this->flash->error("Esta guia de remision no existe");
             return $this->dispatcher->forward(
-                  [
-                     "action" => "index",
-                  ]
+                            [
+                                "action" => "index",
+                            ]
             );
         }
 
@@ -113,9 +115,10 @@ class GuiacabController extends ControllerBase {
         $this->flash->success('Guia de Remision Seleccionada || ' . $guiacab->getrefNumber());
         $this->firmaGuia($guiacab);
         return $this->dispatcher->forward(
-              [
-                 "action" => "search",
-              ]
+                        [
+                            "controller" => "guiacab",
+                            "action" => "index"
+                        ]
         );
     }
 
@@ -125,9 +128,9 @@ class GuiacabController extends ControllerBase {
         if ($guiacab == false) {
             $this->flash->error("Esta guia de remision no existe");
             return $this->dispatcher->forward(
-                  [
-                     "action" => "index",
-                  ]
+                            [
+                                "action" => "index",
+                            ]
             );
         }
 
@@ -142,13 +145,13 @@ class GuiacabController extends ControllerBase {
             }
 
             return $this->dispatcher->forward([
-                  'action' => 'index',
+                        'action' => 'index',
             ]);
         }
         return $this->dispatcher->forward(
-              [
-                 "action" => "search",
-              ]
+                        [
+                            "action" => "search",
+                        ]
         );
     }
 
@@ -175,9 +178,9 @@ class GuiacabController extends ControllerBase {
 
         $part = '<div><p><strong>FACTURACION ELECTRONICA LOS COQUEIROS</strong></p><br>
            <p>Estimado(a) </p><br><p><strong> Jefe de Bodega' .
-           '</strong></p><br><p>Heladerías Cofrunat Cia. Ltda.,  le informa que se ha generado su comprobante electrónico,</p><br><p><strong>' .
-           $w_con['estab'] . '-' . $w_con['punto'] . '-' . $w_cab['numeroDocumento'] . '</strong></p><br> ' .
-           '<p>que adjuntamos en formato XML de acuerdo a los requerimientos del SRI.</p><br>
+                '</strong></p><br><p>Heladerías Cofrunat Cia. Ltda.,  le informa que se ha generado su comprobante electrónico,</p><br><p><strong>' .
+                $w_con['estab'] . '-' . $w_con['punto'] . '-' . $w_cab['numeroDocumento'] . '</strong></p><br> ' .
+                '<p>que adjuntamos en formato XML de acuerdo a los requerimientos del SRI.</p><br>
          <p>Podrá revisar este y todos sus documentos electrónicos en </p><br>
          <p>https://declaraciones.sri.gob.ec/comprobantes-electronicos-internet/\r\npublico/validezComprobantes.jsf?pathMPT=Facturaci%F3n%20Electr%F3nica&actualMPT=Validez%20de%20comprobantes\r\n
 
@@ -205,46 +208,48 @@ class GuiacabController extends ControllerBase {
     private function _registerGuia($arreglo) {
         $origen = $arreglo->origenId;
         $destino = $arreglo->destinoId;
+        $tipo = $arreglo->tipoDestino;
         $chofer = $arreglo->driverId;
         $ruta = $arreglo->routeId;
         $carro = $arreglo->vehicleId;
-        $nombres = $this->sacaNombres($origen, $destino, $chofer, $ruta, $carro);
+
+        $nombres = $this->sacaNombres($origen, $tipo, $destino, $chofer, $ruta, $carro);
         $doc = $this->claves->generaDoc($arreglo->refNumber);
         $this->session->set('guiacab', array(
-           'TxnID' => $arreglo->txnID,
-           'TimeCreated' => $arreglo->timeCreated,
-           'TimeModified' => $arreglo->timeModified,
-           'EditSequence' => $arreglo->editSequence,
-           'numeroTransaccion' => $doc['documento'] + 10000000,
-           'fechaDocumento' => $arreglo->txnDate,
-           'dateBegin' => $arreglo->dateBegin,
-           'dateEnd' => $arreglo->dateEnd,
-           'numeroDocumento' => $doc['documento'],
-           'CustomField13' => $arreglo->CustomField13,
-           'CustomField14' => $arreglo->CustomField14,
-           'CustomField15' => $arreglo->CustomField15,
-           'origenaddress' => $nombres['origenaddress'],
-           'origennumeroid' => $nombres['origennumeroid'],
-           'origentipoid' => $nombres['origentipoid'],
-           'carroplaca' => $nombres['carroplaca'],
-           'destinoaddress' => $nombres['destinoaddress'],
-           'ruta' => $nombres['ruta'],
-           'destinonumeroid' => $nombres['destinonumeroid'],
-           'destinotipoid' => $nombres['destinotipoid'],
-           'chofernumeroId' => $nombres['chofernumeroId'],
-           'chofertipoId' => $nombres['chofertipoId'],
-           'chofer' => $nombres['chofer'],
-           'destino' => $nombres['destino'],
-           'motive' => $arreglo->motive,
+            'TxnID' => $arreglo->txnID,
+            'TimeCreated' => $arreglo->timeCreated,
+            'TimeModified' => $arreglo->timeModified,
+            'EditSequence' => $arreglo->editSequence,
+            'numeroTransaccion' => $doc['documento'] + 10000000,
+            'fechaDocumento' => $arreglo->txnDate,
+            'dateBegin' => $arreglo->dateBegin,
+            'dateEnd' => $arreglo->dateEnd,
+            'numeroDocumento' => $doc['documento'],
+            'CustomField13' => $arreglo->CustomField13,
+            'CustomField14' => $arreglo->CustomField14,
+            'CustomField15' => $arreglo->CustomField15,
+            'origenaddress' => $nombres['origenaddress'],
+            'origennumeroid' => $nombres['origennumeroid'],
+            'origentipoid' => $nombres['origentipoid'],
+            'carroplaca' => $nombres['carroplaca'],
+            'destinoaddress' => $nombres['destinoaddress'],
+            'ruta' => $nombres['ruta'],
+            'destinonumeroid' => $nombres['destinonumeroid'],
+            'destinotipoid' => $nombres['destinotipoid'],
+            'chofernumeroId' => $nombres['chofernumeroId'],
+            'chofertipoId' => $nombres['chofertipoId'],
+            'chofer' => $nombres['chofer'],
+            'destino' => $nombres['destino'],
+            'motive' => $arreglo->motive,
         ));
         $parameters = array('conditions' => '[CodEmisor] = :estab: AND [Punto] = :punto:', 'bind' => array('estab' => $doc['estab'], 'punto' => $doc['punto']));
         $contribuyente = Contribuyente::findFirst($parameters);
         if ($contribuyente == false) {
             $this->flash->error("Este contribuyente no existe");
             return $this->dispatcher->forward(
-                  [
-                     "action" => "search",
-                  ]
+                            [
+                                "action" => "search",
+                            ]
             );
         }
         $rucPasa = $this->claves->registraContribuyente($contribuyente);
@@ -287,7 +292,7 @@ class GuiacabController extends ControllerBase {
             $this->flash->error("Guia de Remision no existe " . $TxnID);
 
             return $this->dispatcher->forward([
-                  'action' => 'index'
+                        'action' => 'index'
             ]);
         }
 
@@ -307,7 +312,7 @@ class GuiacabController extends ControllerBase {
             }
 
             return $this->dispatcher->forward([
-                  'action' => 'index',
+                        'action' => 'index',
             ]);
         }
         $this->flash->success("la guia de remision ahora esta " . $param['mensaje']);
@@ -319,9 +324,9 @@ class GuiacabController extends ControllerBase {
         if ($guiacab == false) {
             $this->flash->error("Esta retencion no existe");
             return $this->dispatcher->forward(
-                  [
-                     "action" => "index",
-                  ]
+                            [
+                                "action" => "index",
+                            ]
             );
         }
 
@@ -339,9 +344,9 @@ class GuiacabController extends ControllerBase {
             $this->flash->error('EN ' . $this->txt_ambiente . $mensaje['mensaje']);
         }
         return $this->dispatcher->forward(
-              [
-                 "action" => "search",
-              ]
+                        [
+                            "action" => "search",
+                        ]
         );
     }
 
@@ -415,27 +420,30 @@ class GuiacabController extends ControllerBase {
         $doc->saveXML();
         file_put_contents($pasaXML, $stringDoc);
         $this->session->set('documentoXML', $pasaXML);
-//        $ret = exec('c:\wamp64\www\ComprobantesSRI\ecuador\corre.bat', $out, $return);
+        $ret = exec('c:\wamp64\www\ComprobantesSRI\ecuador\corre.bat', $out, $return);
         $docpasa = new DOMDocument();
         $docpasa->load($pasaXML);
         $docpasa->save($salida);
-        $ret = shell_exec('/home/online/public_html/public/arranca.sh');
+//        $ret = shell_exec('/home/online/public_html/public/arranca.sh');
         $docregresa = new DOMDocument();
         $docregresa->load($regresaXML);
         $docregresa->save($firmado);
-        
     }
 
     function procesaItem($producto) {
 
         $w_string = $this->session->get('stringDetalles');
         $item = $producto->items;
-        $regresaDescripcion = $this->claves->limpiaString($item->description);
-        $stringItem = '<detalle><codigoInterno>' . $item->name . '</codigoInterno>';
+        $regresaDescripcion = $this->claves->limpiaString($item->descripcion);
+        $stringItem = '<detalle><codigoInterno>' . $item->nombre . '</codigoInterno>';
         $stringItem .= '<codigoAdicional>' . $producto->ItemRefListID . '</codigoAdicional>';
         $stringItem .= '<descripcion>' . $regresaDescripcion . '</descripcion><cantidad>' . $producto->qty . '</cantidad>';
-        $stringItem .= '<detallesAdicionales><detAdicional nombre="Lotes" valor="' . $producto->numeroLote . '"/>';
-        $stringItem .= '</detallesAdicionales></detalle>';
+        if (strlen($producto->numeroLote) > 0) {
+            $stringItem .= '<detallesAdicionales><detAdicional nombre="Lotes" valor="' . $producto->numeroLote . '"/>';
+            $stringItem .= '</detallesAdicionales></detalle>';
+        } else {
+            $stringItem .= '</detalle>';
+        }
 
         $w_string .= $stringItem;
         $this->session->set('stringDetalles', $w_string);
@@ -449,13 +457,13 @@ class GuiacabController extends ControllerBase {
             if (!$guiacab) {
                 $this->flash->error("Esta guia no existe");
                 return $this->dispatcher->forward([
-                      'action' => 'index'
+                            'action' => 'index'
                 ]);
             }
             if ($guiacab->CustomField15 <> 'GRABADO' && $guiacab->CustomField15 <> 'SIN FIRMAR') {
                 $this->flash->error("Esta guia no puede ser modificada tiene estado de " . $guiacab->CustomField15);
                 return $this->dispatcher->forward([
-                      'action' => 'index'
+                            'action' => 'index'
                 ]);
             }
             $this->view->form = new GuiaNewForm;
@@ -476,8 +484,8 @@ class GuiacabController extends ControllerBase {
 
         if (!$this->request->isPost()) {
             $this->dispatcher->forward([
-               'controller' => "guiacab",
-               'action' => 'index'
+                'controller' => "guiacab",
+                'action' => 'index'
             ]);
 
             return;
@@ -489,18 +497,19 @@ class GuiacabController extends ControllerBase {
         $data = $this->request->getPost();
         if (!$form->isValid($data)) {
             foreach ($form->getMessages() as $message) {
-                $this->flash->error($message);
+//                $this->flash->error($message);
             }
 
             return $this->dispatcher->forward(
-                  [
-                     "action" => "new",
-                  ]
+                            [
+                                "action" => "new",
+                            ]
             );
         }
 //        var_dump($this->request->getPost());
         $clave = $this->claves->guid();
         $fecha = date('Y-m-d H:m:s');
+        $transferencia = 'TRANSFERENCIA';
         $guiacab->settxnID($clave);
         $guiacab->settimeCreated($fecha);
         $guiacab->settimeModified($fecha);
@@ -508,6 +517,7 @@ class GuiacabController extends ControllerBase {
         $guiacab->setrefNumber($this->request->getPost("refNumber"));
         $guiacab->settxnDate($this->request->getPost("txnDate"));
         $guiacab->setorigenId($this->request->getPost("origenId"));
+        $guiacab->settipoDestino($transferencia);
         $guiacab->setdestinoId($this->request->getPost("destinoId"));
         $guiacab->setdriverId($this->request->getPost("driverId"));
         $guiacab->setrouteId($this->request->getPost("routeId"));
@@ -519,7 +529,7 @@ class GuiacabController extends ControllerBase {
         $guiacab->setestado('ACTIVO');
         $guiacab->setCustomField15('GRABADO');
 
-        $nombres = $this->sacaNombres($this->request->getPost("origenId"), $this->request->getPost("destinoId"), $this->request->getPost("driverId"), $this->request->getPost("routeId"), $this->request->getPost("vehicleId"));
+        $nombres = $this->sacaNombres($this->request->getPost("origenId"), $transferencia, $this->request->getPost("destinoId"), $this->request->getPost("driverId"), $this->request->getPost("routeId"), $this->request->getPost("vehicleId"));
         $guiacab->setorigenName($nombres['origen']);
         $guiacab->setdestinoName($nombres['destino']);
         $guiacab->setdriverName($nombres['chofer']);
@@ -532,8 +542,8 @@ class GuiacabController extends ControllerBase {
             }
 
             $this->dispatcher->forward([
-               'controller' => "guiacab",
-               'action' => 'new'
+                'controller' => "guiacab",
+                'action' => 'new'
             ]);
 
             return;
@@ -542,53 +552,78 @@ class GuiacabController extends ControllerBase {
 //        $this->flash->success("Se ha generado la guia de remision nro " . $this->request->getPost('refNumber'));
 
         $this->dispatcher->forward([
-           'controller' => "guiacab",
-           'action' => 'productos',
-           'params' => [$this->request->getPost('refNumber')]
+            'controller' => "guiacab",
+            'action' => 'productos',
+            'params' => [$this->request->getPost('refNumber')]
         ]);
     }
 
-    public function sacaNombres($origen, $destino, $chofer, $ruta, $carro) {
-        $nombres = array('origen' => 'origen', 'destino' => 'destino', 'chofer' => 'chofer', 'ruta' => 'ruta');
-
+    public function sacaNombres($origen, $tipo, $destino, $chofer, $ruta, $carro) {
+        $nombres = array();
         $a_origen = Bodegas::findFirstByListID($origen);
+        $nombres['origenId'] = $origen;
         $nombres['origen'] = $a_origen->Name;
         $nombres['origenaddress'] = $a_origen->BodegaAddress;
         $nombres['origentipoid'] = $a_origen->TipoID;
         $nombres['origennumeroid'] = $a_origen->NumeroID;
         $nombres['origenemail'] = $a_origen->Email;
 
-        $a_destino = Bodegas::findFirstByListID($destino);
-        $nombres['destino'] = $a_destino->Name;
-        $nombres['destinoaddress'] = $a_destino->BodegaAddress;
-        $nombres['destinotipoid'] = $a_destino->TipoID;
-        $nombres['destinonumeroid'] = $a_destino->NumeroID;
-        $nombres['destinoemail'] = $a_destino->Email;
+        if ($tipo === 'CLIENTE') {
+            $a_destino = Customer::findFirstByListID($destino);
+            $nombres['destinoId'] = $destino;
+            $nombres['destino'] = $a_destino->Name;
+            $nombres['destinoaddress'] = $a_destino->BillAddress_Addr1;
+            if ($a_destino->CustomerTypeRef_FullName === 'RUC') {
+                $tipo_aux = '04';
+            } elseif ($a_destino->CustomerTypeRef_FullName === 'CEDULA') {
+                $tipo_aux = '05';
+            } elseif ($a_destino->CustomerTypeRef_FullName === 'PASAPORTE') {
+                $tipo_aux = '06';
+            } elseif ($a_destino->CustomerTypeRef_FullName === 'EXTRANJERO') {
+                $tipo_aux = '07';
+            }
+            $nombres['destinotipoid'] = $tipo_aux;
+            $nombres['destinonumeroid'] = $a_destino->AccountNumber;
+            $nombres['destinoemail'] = $a_destino->Email;
+        } else {
+            $a_destino = Bodegas::findFirstByListID($destino);
+            $nombres['destinoId'] = $destino;
+            $nombres['destino'] = $a_destino->Name;
+            $nombres['destinoaddress'] = $a_destino->BodegaAddress;
+            $nombres['destinotipoid'] = $a_destino->TipoID;
+            $nombres['destinonumeroid'] = $a_destino->NumeroID;
+            $nombres['destinoemail'] = $a_destino->Email;
+        }
 
         $a_chofer = Driver::findFirstBylistID($chofer);
+        $nombres['choferId'] = $chofer;
         $nombres['chofer'] = $a_chofer->name;
         $nombres['choferaddress'] = $a_chofer->address;
         $nombres['chofertipoId'] = $a_chofer->tipoId;
         $nombres['chofernumeroId'] = $a_chofer->numeroId;
 
         $a_ruta = Route::findFirstBylistID($ruta);
+        $nombres['rutaId'] = $ruta;
         $nombres['ruta'] = $a_ruta->description;
 
         $a_carro = Vehicle::findFirstBylistID($carro);
+        $nombres['carroId'] = $carro;
         $nombres['carro'] = $a_carro->description;
         $nombres['carroplaca'] = $a_carro->name;
         return $nombres;
     }
 
     public function productosAction($refNumber) {
+
+        $ruc = $this->session->get('contribuyente');
         $guiacab = Guiacab::findFirstByrefNumber($refNumber);
         if (!$guiacab) {
             $this->flash->warning("no se ha encontrado la guia de remision " . $refNumber);
 
             $this->dispatcher->forward([
-               'controller' => "guiacab",
-               'action' => 'productos',
-               'params' => [$refNumber]
+                'controller' => "guiacab",
+                'action' => 'productos',
+                'params' => [$refNumber]
             ]);
         }
         $TxnID = $guiacab->txnID;
@@ -597,15 +632,16 @@ class GuiacabController extends ControllerBase {
         $guiatrx = Guiatrx::find($parameters);
         $this->view->guiacab = $guiacab;
         $this->view->form = $form;
+        $this->view->ruc = $ruc;
         $this->view->guiatrx = $guiatrx;
     }
 
     public function masproductosAction($refNumber) {
         if (!$this->request->isPost()) {
             return $this->dispatcher->forward([
-                  'controller' => "guiacab",
-                  'action' => 'productos',
-                  'params' => [$refNumber]
+                        'controller' => "guiacab",
+                        'action' => 'productos',
+                        'params' => [$refNumber]
             ]);
         }
 
@@ -621,8 +657,8 @@ class GuiacabController extends ControllerBase {
             }
 
             return $this->dispatcher->forward([
-                  "action" => "productos",
-                  "params" => [$refNumber]
+                        "action" => "productos",
+                        "params" => [$refNumber]
             ]);
         }
 
@@ -649,17 +685,17 @@ class GuiacabController extends ControllerBase {
             }
 
             return $this->dispatcher->forward([
-                  'action' => 'productos',
-                  'params' => [$refNumber]
+                        'action' => 'productos',
+                        'params' => [$refNumber]
             ]);
         }
 
 //        $this->flash->success("Se ha adicionado un nuevo producto" . $this->request->getPost('ItemRefListID'));
 
         return $this->dispatcher->forward([
-              'controller' => "guiacab",
-              'action' => 'productos',
-              'params' => [$refNumber]
+                    'controller' => "guiacab",
+                    'action' => 'productos',
+                    'params' => [$refNumber]
         ]);
     }
 
@@ -667,7 +703,7 @@ class GuiacabController extends ControllerBase {
 
         if (!$this->request->isPost()) {
             $this->dispatcher->forward([
-               'action' => 'index'
+                'action' => 'index'
             ]);
 
             return;
@@ -680,15 +716,17 @@ class GuiacabController extends ControllerBase {
             $this->flash->error("No se puede actualizar esta guia " . $refNumber);
 
             return $this->dispatcher->forward([
-                  'action' => 'index'
+                        'action' => 'index'
             ]);
         }
 
         $fecha = date('Y-m-d H:m:s');
+        $transferencia = 'TRANSFERENCIA';
         $guiacab->settimeModified($fecha);
         $guiacab->setrefNumber($this->request->getPost("refNumber"));
         $guiacab->settxnDate($this->request->getPost("txnDate"));
         $guiacab->setorigenId($this->request->getPost("origenId"));
+        $guiacab->settipoDestino($transferencia);
         $guiacab->setdestinoId($this->request->getPost("destinoId"));
         $guiacab->setdriverId($this->request->getPost("driverId"));
         $guiacab->setrouteId($this->request->getPost("routeId"));
@@ -696,7 +734,7 @@ class GuiacabController extends ControllerBase {
         $guiacab->setdateBegin($this->request->getPost("dateBegin"));
         $guiacab->setdateEnd($this->request->getPost("dateEnd"));
         $guiacab->setmotive($this->request->getPost("motive"));
-        $nombres = $this->sacaNombres($this->request->getPost("origenId"), $this->request->getPost("destinoId"), $this->request->getPost("driverId"), $this->request->getPost("routeId"), $this->request->getPost("vehicleId"));
+        $nombres = $this->sacaNombres($this->request->getPost("origenId"), $transferencia, $this->request->getPost("destinoId"), $this->request->getPost("driverId"), $this->request->getPost("routeId"), $this->request->getPost("vehicleId"));
         $guiacab->setorigenName($nombres['origen']);
         $guiacab->setdestinoName($nombres['destino']);
         $guiacab->setdriverName($nombres['chofer']);
@@ -710,15 +748,15 @@ class GuiacabController extends ControllerBase {
             }
 
             return $this->dispatcher->forward([
-                  'action' => 'edit',
-                  'params' => [$guiacab->refNumber]
+                        'action' => 'edit',
+                        'params' => [$guiacab->refNumber]
             ]);
         }
 
         $this->dispatcher->forward([
-           'controller' => "guiacab",
-           'action' => 'productos',
-           'params' => [$guiacab->refNumber]
+            'controller' => "guiacab",
+            'action' => 'productos',
+            'params' => [$guiacab->refNumber]
         ]);
     }
 
@@ -728,9 +766,9 @@ class GuiacabController extends ControllerBase {
         if ($guiacab == false) {
             $this->flash->error("Esta guia de remision no existe");
             return $this->dispatcher->forward(
-                  [
-                     "action" => "index",
-                  ]
+                            [
+                                "action" => "index",
+                            ]
             );
         }
 
@@ -742,7 +780,7 @@ class GuiacabController extends ControllerBase {
                 $this->flash->error($message);
             }
             return $this->dispatcher->forward([
-                  'action' => 'index'
+                        'action' => 'index'
             ]);
         }
         if (!$guiacab->delete()) {
@@ -750,14 +788,14 @@ class GuiacabController extends ControllerBase {
                 $this->flash->error($message);
             }
             return $this->dispatcher->forward([
-                  'action' => 'index'
+                        'action' => 'index'
             ]);
         }
 
         $this->flash->success("Guia de remision eliminada " . $refNumber);
 
         $this->dispatcher->forward([
-           'action' => "search"
+            'action' => "search"
         ]);
     }
 
@@ -767,7 +805,7 @@ class GuiacabController extends ControllerBase {
             $this->flash->error("Producto no existe");
 
             return $this->dispatcher->forward([
-                  'action' => 'index'
+                        'action' => 'index'
             ]);
         }
 
@@ -778,14 +816,14 @@ class GuiacabController extends ControllerBase {
             }
 
             return $this->dispatcher->forward([
-                  'action' => 'productos',
-                  'params' => [$refNumber]
+                        'action' => 'productos',
+                        'params' => [$refNumber]
             ]);
         }
 
         $this->dispatcher->forward([
-           'action' => "productos",
-           'params' => [$refNumber]
+            'action' => "productos",
+            'params' => [$refNumber]
         ]);
     }
 

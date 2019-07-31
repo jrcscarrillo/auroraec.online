@@ -62,6 +62,7 @@
                     {{ form() }}
                     <fieldset>
                         <legend> ULTIMA FACTURA </legend>
+                        {% if haynohay === "SI" %}
                         <section>
                             <div class="l-row">
                                 <div class="l-col-6">
@@ -136,6 +137,7 @@
                                 </div>
                             </div>  
                         </section>
+                        {% endif %}
                     </fieldset>
                     </form>
                 </div>

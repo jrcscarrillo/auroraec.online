@@ -8,26 +8,26 @@ class Bonificadetalle extends \Phalcon\Mvc\Model
 // **********************
 
 
-    protected $TxnLineID;   // (normal Attribute)
-    protected $ItemRef_ListID;   // (normal Attribute)
-    protected $ItemRef_FullName;   // (normal Attribute)
-    protected $Description;   // (normal Attribute)
-    protected $Quantity;   // (normal Attribute)
-    protected $UnitOfMeasure;   // (normal Attribute)
-    protected $Rate;   // (normal Attribute)
-    protected $RatePercent;   // (normal Attribute)
-    protected $Amount;   // (normal Attribute)
-    protected $InventorySiteRef_ListID;   // (normal Attribute)
-    protected $InventorySiteRef_FullName;   // (normal Attribute)
-    protected $SerialNumber;   // (normal Attribute)
-    protected $LotNumber;   // (normal Attribute)
-    protected $SalesTaxCodeRef_ListID;   // (normal Attribute)
-    protected $SalesTaxCodeRef_FullName;   // (normal Attribute)
-    protected $Invoiced;   // (normal Attribute)
-    protected $IsManuallyClosed;   // (normal Attribute)
-    protected $Other1;   // (normal Attribute)
-    protected $Other2;   // (normal Attribute)
-    protected $IDKEY;   // (normal Attribute)
+    protected $TxnLineID;   
+    protected $ItemRef_ListID;   
+    protected $ItemRef_FullName;   
+    protected $Description;   
+    protected $Quantity;   
+    protected $UnitOfMeasure;   
+    protected $Rate;   
+    protected $RatePercent;   
+    protected $Amount;   
+    protected $InventorySiteRef_ListID;   
+    protected $InventorySiteRef_FullName;   
+    protected $SerialNumber;   
+    protected $LotNumber;   
+    protected $SalesTaxCodeRef_ListID;   
+    protected $SalesTaxCodeRef_FullName;   
+    protected $Invoiced;   
+    protected $IsManuallyClosed;   
+    protected $Other1;   
+    protected $Other2;   
+    protected $IDKEY;   
 
 // **********************
 // GETTER METHODS
@@ -203,7 +203,7 @@ class Bonificadetalle extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->setSchema("carrillo_dbaurora");
+        $this->setSchema("coopdb");
         $this->setSource("bonificadetalle");
         $this->belongsTo('IDKEY', 'Pedidos', 'TxnID', ['alias' => 'Pedidos']);
     }

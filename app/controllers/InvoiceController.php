@@ -538,7 +538,7 @@ A LA RECEPCIÓN DE SU FACTURA A LOS CORREOS QUE INDICAMOS A CONTINUACIÓN
         $out_valor = number_format($db_valor, '2', '.', '');
         $out_Amount = number_format($producto->Amount, '2', '.', '');
         $item = $producto->items;
-        $regresaDescripcion = $this->claves->limpiaString($item->description);
+        $regresaDescripcion = $this->claves->limpiaString($item->descripcion);
         if ($w_cabecera['CustomField2'] === 'CON ORDEN DE COMPRA') {
             $stringItem = '<detalle><codigoPrincipal>' . substr($regresaDescripcion, 0, 13) . '</codigoPrincipal>';
             $stringItem .= '<codigoAuxiliar>' . $item->name . '</codigoAuxiliar>';

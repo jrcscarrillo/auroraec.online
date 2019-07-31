@@ -253,10 +253,10 @@ table td.derch { background-color: #fcf8f2;
 <!-- ITEMS HERE -->';
 
         for ($i = 1; $i <= count($fuente['codigo']); $i++) {
-            $html .= '<tr><td>' . substr($fuente['descripcion'][$i], 0, 13) . '</td>';
+            $html .= '<tr><td>' . $fuente['codigoadicional'][$i] . '</td>';
             $html .= '<td>' . $fuente['codigo'][$i] . '</td>';
             $html .= '<td>' . $fuente['adicional'][$i] . '</td>';
-            $html .= '<td>' . substr($fuente['descripcion'][$i], 14) . '</td>';
+            $html .= '<td>' . $fuente['descripcion'][$i] . '</td>';
             $html .= '<td align="right">' . $fuente['cantidad'][$i] . '</td></tr>';
         }
 
@@ -371,6 +371,9 @@ table td.derch { background-color: #fcf8f2;
                     switch ($child->nodeName) {
                         case 'codigoInterno':
                             $fuente['codigo'][$lineas] = $child->nodeValue;
+                            break;
+                        case 'codigoAdicional':
+                            $fuente['codigoadicional'][$lineas] = $child->nodeValue;
                             break;
                         case 'cantidad':
                             $fuente['cantidad'][$lineas] = $child->nodeValue;

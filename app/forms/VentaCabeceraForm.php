@@ -7,7 +7,6 @@ use Phalcon\Forms\Element\Numeric;
 use Phalcon\Forms\Element\Date;
 use Phalcon\Forms\Element\Select;
 use Phalcon\Validation\Validator\PresenceOf;
-use \base\ValidaGuiaValidator;
 
 class VentaCabeceraForm extends Form {
 

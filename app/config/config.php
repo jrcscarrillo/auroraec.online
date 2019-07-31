@@ -12,7 +12,7 @@ return new \Phalcon\Config([
         'host'        => 'localhost',
         'username'    => 'carrillo_db',
         'password'    => 'AnyaCarrill0',
-        'dbname'      => 'carrillo_dbaurora',
+        'dbname'      => 'coopdb',
         'charset'     => 'utf8',
     ],
     'application' => [

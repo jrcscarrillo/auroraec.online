@@ -7,50 +7,50 @@ class Pedidostmp extends \Phalcon\Mvc\Model
 // **********************
 
 
-public $TxnID;   // (normal Attribute)
-public $TimeCreated;   // (normal Attribute)
-public $TimeModified;   // (normal Attribute)
-public $EditSequence;   // (normal Attribute)
-public $TxnNumber;   // (normal Attribute)
-public $CustomerRef_ListID;   // (normal Attribute)
-public $CustomerRef_FullName;   // (normal Attribute)
-public $TxnDate;   // (normal Attribute)
-public $RefNumber;   // (normal Attribute)
-public $PONumber;   // (normal Attribute)
-public $TermsRef_ListID;   // (normal Attribute)
-public $TermsRef_FullName;   // (normal Attribute)
-public $DueDate;   // (normal Attribute)
-public $SalesRepRef_ListID;   // (normal Attribute)
-public $SalesRepRef_FullName;   // (normal Attribute)
-public $Subtotal;   // (normal Attribute)
-public $SalesTaxTotal;   // (normal Attribute)
-public $TotalAmount;   // (normal Attribute)
-public $IsManuallyClosed;   // (normal Attribute)
-public $IsFullyInvoiced;   // (normal Attribute)
-public $Memo;   // (normal Attribute)
-public $CustomerMsgRef_ListID;   // (normal Attribute)
-public $CustomerMsgRef_FullName;   // (normal Attribute)
-public $Other;   // (normal Attribute)
-public $Status;   // (normal Attribute)
-public $TxnLineID;   // (normal Attribute)
-public $ItemRef_ListID;   // (normal Attribute)
-public $ItemRef_FullName;   // (normal Attribute)
-public $Description;   // (normal Attribute)
-public $Quantity;   // (normal Attribute)
-public $UnitOfMeasure;   // (normal Attribute)
-public $Rate;   // (normal Attribute)
-public $RatePercent;   // (normal Attribute)
-public $Amount;   // (normal Attribute)
-public $InventorySiteRef_ListID;   // (normal Attribute)
-public $InventorySiteRef_FullName;   // (normal Attribute)
-public $SerialNumber;   // (normal Attribute)
-public $LotNumber;   // (normal Attribute)
-public $SalesTaxCodeRef_ListID;   // (normal Attribute)
-public $SalesTaxCodeRef_FullName;   // (normal Attribute)
-public $Invoiced;   // (normal Attribute)
-public $Other1;   // (normal Attribute)
-public $Other2;   // (normal Attribute)
-public $IDKEY;   // (normal Attribute)
+public $TxnID;   
+public $TimeCreated;   
+public $TimeModified;   
+public $EditSequence;   
+public $TxnNumber;   
+public $CustomerRef_ListID;   
+public $CustomerRef_FullName;   
+public $TxnDate;   
+public $RefNumber;   
+public $PONumber;   
+public $TermsRef_ListID;   
+public $TermsRef_FullName;   
+public $DueDate;   
+public $SalesRepRef_ListID;   
+public $SalesRepRef_FullName;   
+public $Subtotal;   
+public $SalesTaxTotal;   
+public $TotalAmount;   
+public $IsManuallyClosed;   
+public $IsFullyInvoiced;   
+public $Memo;   
+public $CustomerMsgRef_ListID;   
+public $CustomerMsgRef_FullName;   
+public $Other;   
+public $Status;   
+public $TxnLineID;   
+public $ItemRef_ListID;   
+public $ItemRef_FullName;   
+public $Description;   
+public $Quantity;   
+public $UnitOfMeasure;   
+public $Rate;   
+public $RatePercent;   
+public $Amount;   
+public $InventorySiteRef_ListID;   
+public $InventorySiteRef_FullName;   
+public $SerialNumber;   
+public $LotNumber;   
+public $SalesTaxCodeRef_ListID;   
+public $SalesTaxCodeRef_FullName;   
+public $Invoiced;   
+public $Other1;   
+public $Other2;   
+public $IDKEY;   
 
 // **********************
 // GETTER METHODS
@@ -507,7 +507,7 @@ $this->IDKEY =  $val;
      */
     public function initialize()
     {
-        $this->setSchema("carrillo_dbaurora");
+        $this->setSchema("coopdb");
         $this->setSource("pedidostmp");
     }
 
