@@ -1,3 +1,5 @@
+{{ content() }}
+{{ elements.getModelosAdicional() }}
 {% include "layouts/cabecera.volt" %}
 <div class="w-100">
     <div class="container-fluid">
@@ -31,14 +33,13 @@
                     <tr>
                         <th class="tb-gen tb-c10">Fecha Emision</th>
                         <th class="tb-gen tb-c10">Numero Guia</th>
+                        <th class="tb-gen tb-c20">Origen</th>
+                        <th class="tb-gen tb-c20">Destino</th>
                         <th class="tb-gen tb-c10">Fecha Inicio</th>
                         <th class="tb-gen tb-c10">Fecha Fin</th>
-                        <th class="tb-gen tb-c10">Estado</th>
-                        <th class="tb-gen tb-c10">Modificar</th>
-                        <th class="tb-gen tb-c10">Eliminar</th>
-                        <th class="tb-gen tb-c10">Firmar</th>
-                        <th class="tb-gen tb-c10">Autorizar</th>
-                        <th class="tb-gen tb-c10">Imprimir</th>
+                        <th class="tb-gen tb-c10">Estado SRI</th>
+                        <th class="tb-gen tb-c5">Modificar</th>
+                        <th class="tb-gen tb-c5">Eliminar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,14 +48,13 @@
                             <tr>
                                 <td>{{ guia.txnDate }}</td>
                                 <td>{{ guia.refNumber }}</td>
+                                <td>{{ guia.origenName }}</td>
+                                <td>{{ guia.destinoName }}</td>
                                 <td>{{ guia.dateBegin }}</td>
                                 <td>{{ guia.dateEnd }}</td>
-                                <td>{{ guia.estado }}</td>
-                                <td style="text-align:center;">{{ link_to("guiacab/edit/"~guiacab.Id, '<i class="fa fa-pencil-square-o" aria-hidden="true" style="font-size:24px;color:green;"></i>') }}</td>
+                                <td>{{ guia.CustomField15 }}</td>
+                                <td style="text-align:center;">{{ link_to("guiacab/edit/"~guia.refNumber, '<i class="fa fa-pencil-square-o" aria-hidden="true" style="font-size:24px;color:green;"></i>') }}</td>
                                 <td style="text-align:center;">{{ link_to("guiacab/delete/"~guia.refNumber, '<i class="fa fa-trash-o" aria-hidden="true" style="font-size:24px;color:green;"></i>') }}</td>
-                                <td style="text-align:center;">{{ link_to("guiacab/firmar/"~guia.refNumber, '<i class="fa fa-pencil" aria-hidden="true"  style="font-size:24px;color:green;"></i>') }}</td>
-                                <td style="text-align:center;">{{ link_to("guiacab/autorizar/"~guia.refNumber, '<i class="fa fa-certificate" aria-hidden="true"  style="font-size:24px;color:green;"></i>') }}</td>
-                                <td style="text-align:center;">{{ link_to("guiacab/impresion/"~guia.refNumber, '<i class="fa fa-print" aria-hidden="true"  style="font-size:24px;color:green;"></i>') }}</td>
 
                             </tr>
                         {% endfor %}

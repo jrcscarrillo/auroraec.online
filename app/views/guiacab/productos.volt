@@ -106,11 +106,10 @@
                     <footer>
                         <div class="row">
                             <div class="form-group">
-                                {{ link_to("guiacab/aprobar/" ~ guiacab.refNumber, 'Aprobar Guia', "class": "btn btn-info") }}
+                                {{ link_to("guiacab/aprobar/" ~ guiacab.refNumber, 'Aprobar Guia', "class": "btn btn-primary") }}
                             </div>
                         </div>
                     </footer>
-                    </form>
                     </form>
 
                 </div>

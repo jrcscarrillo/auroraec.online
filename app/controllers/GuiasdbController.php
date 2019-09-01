@@ -127,6 +127,12 @@ class GuiasdbController extends ControllerBase {
                 }
             }
         }
+        
+        $guiapro = 'GUIA PROCESADA';
+        $invoice->setCustomField7($guiapro);
+        if(!$invoice->save) {
+            
+        }
         $this->view->form = $form;
         $this->view->ruc = $ruc;
     }
@@ -219,7 +225,7 @@ class GuiasdbController extends ControllerBase {
         $parameters = array('conditions' => 'IDKEY = :clave:', 'bind' => array('clave' => $guia->gettxnID()));
         $productos = Guiatrx::find($parameters);
         $cliente = Customer::findFirstByListID($guia->getdestinoId());
-        $this->session->set('vinode', 'Proceso Ventas');
+        $this->session->set('vinode', 'Clientes');
         $this->session->remove('pendiente');
         $this->view->guia = $guia;
         $this->view->contribuyente = $contribuyente;

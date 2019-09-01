@@ -2,11 +2,11 @@
 {{ elements.getModelosAdicional() }}
 {% include "layouts/cabecera.volt" %}
 
-<div class="container mt-3">
-    <div class="d-table" style="width:100%">
+<div style="background-color: #C1C1C1">
+    <div class="d-table" style="width:80%" >
         <div class="d-table-row" style="width:100%">
 
-                <table class="table" width="100%">
+                <table class="table text-center" width="100%">
                     <tr>
                         <td width="48%" style="color:#0000BB;">
                             <img align="middle" width="250" height="200" src="https://carrillosteam.com/public/coop/images/logos/auroralogo.jpg"><br />
@@ -42,12 +42,11 @@
                             <div style="color:#A52A2A; font-size:14px; text-align:left; font-weight: bold;">Direccion : 
                                 <span style="color:#B8860B; font-size:12px; text-align:left; font-weight: bold;"> {{ invoice.getBillAddressCity() ~ invoice.getBillAddressAddr1() }} </span></div>
 
-                            <div style="text-align: left">
-                                <span style="color:#A52A2A; font-size:14px; text-align:left; font-weight: bold;">Fecha de Pago :</span> 
-                                <span style="color:#B8860B; font-size:12px; text-align:left; font-weight: bold;"> {{ date('F j, Y', invoice.getDueDate()) }} </span>
-
-                                <span style="color:#A52A2A; font-size:14px; text-align:left; font-weight: bold;">Fecha Emision :</span> 
-                                <span style="color:#B8860B; font-size:12px; text-align:left; font-weight: bold;"> {{ date('F j, Y', invoice.getTxnDate()) }} </span></div>                                
+                            <div style="color:#A52A2A; font-size:14px; text-align:left; font-weight: bold;">Fecha de Pago :</span> 
+                                <span style="color:#B8860B; font-size:12px; text-align:left; font-weight: bold;"> {{ date('F j, Y', strtotime(invoice.getDueDate())) }} </span></div>
+                            
+                            <div style="color:#A52A2A; font-size:14px; text-align:left; font-weight: bold;">Fecha Emision :</span> 
+                                <span style="color:#B8860B; font-size:12px; text-align:left; font-weight: bold;"> {{ date('F j, Y', strtotime(invoice.getTxnDate())) }} </span></div>                                
                         </td></tr></table>
 
                 <br>
@@ -83,7 +82,7 @@
                                     <div style="color:#B8860B; font-size:12px; text-align:left; font-weight: bold;">RUTA : {{ cliente.getCustomField1() }} </div>
                                     <div style="color:#B8860B; font-size:12px; text-align:left; font-weight: bold;">ASESOR : {{ cliente.getSalesRepRefFullName() }} </div>
                                     <div style="color:#B8860B; font-size:12px; text-align:left; font-weight: bold;">OBSERVACIONES : {{ ticket.getNotasComprador() }} </div>
-                                  {{ link_to("invoice/firmar/" ~ invoice.getTxnID(), 'Autorizar SRI', "class": "btn btn-primary") }}
+                                  {{ link_to("invoice/firmar/" ~ invoice.getTxnID(), 'Autorizar SRI', "class": "btn btn-success") }}
                                   {{ link_to("ventas/eliminar", 'Cancelar Facturacion', "class": "btn btn-secondary") }}
                                 </td>
                                 <td class="totals" align="right">Subtotal 12% :</td>

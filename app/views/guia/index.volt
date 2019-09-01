@@ -4,7 +4,7 @@
 <div style="background-color: #C1C1C1">
     <div class="row full-width">
         <div class="col-md-6">
-            {{ form('invoice/search', 'role': 'form', 'class': 'sky-form') }}
+            {{ form('guia/search', 'role': 'form', 'class': 'sky-form') }}
             <header><?php echo $this->view->descriptivo['cabecera']; ?></header>
             <fieldset>
 

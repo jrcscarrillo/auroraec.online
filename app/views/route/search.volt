@@ -1,48 +1,43 @@
-<div class="row">
-    <div class="col-sm-2">
-    </div> 
-    <div class="col-sm-4">
-        <nav>
-            <ul class="pagination">
-                <li>{{ link_to("route/index", "Atras", "class":"btn btn-info") }}</li>
-                <li>{{ link_to("route/search", "Primera") }}</li>
-                <li>{{ link_to("route/search?page="~page.before, "Ant.") }}</li>
-                <li>{{ link_to("route/search?page="~page.next, "Sig.") }}</li>
-                <li>{{ link_to("route/search?page="~page.last, "Fin") }}</li>
-                <li>{{ link_to("ruta", "Agregar", "class":"btn btn-info") }}</li>
-            </ul>
-        </nav>
-    </div>
-    <div class="col-sm-3">
-            <h1>Rutas</h1>
-    </div>            
-    <div class="col-sm-3">
-        <nav>
-            <ul class="pagination pagination-lg">
-                <li class="btn-success">{{ "Pag.  "~page.current ~"  de  " }}</li>
-                <li class="btn-warning">{{ page.total_pages ~ "  Pags." }}</li>
-            </ul>
-        </nav>
-    </div>
-</div>
+{% include "layouts/cabecera.volt" %}
+<div class="w-100">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col col-md-2"><p class="btn btn-success">RUTAS</p></div>
+            <div class="col col-md-3">
+                <div class="btn-group " role="group" aria-label="Basic example">
+                    {{ link_to("route/index", "&larr; Atras", "class": "btn btn-warning") }}
+                    {{ link_to("route/new", "Agregar Ruta" , "class": "btn btn-info") }}
+                </div>
+            </div>
+            <div class="col col-md-4">
+                <div class="btn-group " role="group" aria-label="Basic example">
+                    {{ link_to("route/search", '<i class="icon-fast-backward"></i> Inicio', "class": "btn btn-warning") }}
+                    {{ link_to("route/search?page=" ~ page.before, '<i class="icon-step-backward"></i> Ant.', "class": "btn btn-info") }}
+                    {{ link_to("route/search?page=" ~ page.next, '<i class="icon-step-forward"></i> Prox.', "class": "btn btn-warning") }}
+                    {{ link_to("route/search?page=" ~ page.last, '<i class="icon-fast-forward"></i> Fin', "class": "btn btn-info") }}
 
-{{ content() }}
+                </div>
+            </div>
+            <div class="col col-md-3">
+                <p class="btn btn-info">Pagina {{ page.current }} de {{ page.total_pages }} paginas</p>
+            </div>
+        </div>
+    </div>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-xs-12">
-            <table class="table table-responsive table-bordered table-striped" align="center">
-                <thead class="coloreando" style="background-color: black">
+    <div class="container-fluid">
+        <div class="col-md-12">
+            <table id="table-search" class="table coqueirosb table-responsive table-bordered table-striped table-hover" align="center">
+                <thead>
                     <tr>
-                        <th>Nombre Corto</th>
-                        <th>Nombre Largo</th>
-                        <th>Direccion</th>
-                        <th>Telefono</th>
-                        <th>Email</th>
-                        <th>TipoId</th>
-                        <th>NumeroId</th>
-                        <th></th>
-                        <th></th>
+                        <th class="tb-gen tb-c10">Nombre Corto</th>
+                        <th class="tb-gen tb-c30">Nombre Largo</th>
+                        <th class="tb-gen tb-c30">Direccion</th>
+                        <th class="tb-gen tb-c10">Telefono</th>
+                        <th class="tb-gen tb-c20">Email</th>
+                        <th class="tb-gen tb-c5">TipoId</th>
+                        <th class="tb-gen tb-c5">NumeroId</th>
+                        <th class="tb-gen tb-c5">Editar</th>
+                        <th class="tb-gen tb-c5">Eliminar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,9 +51,8 @@
                                 <td>{{ route.getemail() }}</td>
                                 <td>{{ route.gettipoId() }}</td>
                                 <td>{{ route.getnumeroId() }}</td>
-
-                                <td>{{ link_to("route/edit/"~route.getlistID(), "Edit") }}</td>
-                                <td>{{ link_to("route/delete/"~route.getlistID(), "Delete") }}</td>
+                                <td style="text-align:center;">{{ link_to("route/edit/"~route.getlistID(), '<i class="fa fa-pencil-square-o" aria-hidden="true" style="font-size:24px;color:green;"></i>') }}</td>
+                                <td style="text-align:center;">{{ link_to("route/delete/"~route.getlistID(), '<i class="fa fa-trash-o" aria-hidden="true" style="font-size:24px;color:green;"></i>') }}</td>
                             </tr>
                         {% endfor %}
                     {% else %}
@@ -68,6 +62,7 @@
             </table>
         </div>
     </div>
-</div>
+    {% include "layouts/footer.volt" %}
+</div> 
 
 

@@ -72,7 +72,7 @@ class SessionController extends ControllerBase {
             if ($ticket) {
                 $this->session->set('pendiente', array(
                     "estado" => "GRABADO",
-                    "RefNumber" => $ticket->RefNumber
+                    "RefNumber" => $ticket->getTxnID()
                 ));
             }
 //                $caja = Cashier::findFirst(array(
@@ -111,11 +111,13 @@ class SessionController extends ControllerBase {
         $this->session->remove('auth');
         $this->session->remove('ruc');
         $this->session->remove('contribuyente');
+        $this->session->remove('pendiente');
         $this->flash->success('Hasta Luego!');
+        session_destroy();
 
         return $this->dispatcher->forward(
                         [
-                            "controller" => "index",
+                            "controller" => "home",
                             "action" => "index",
                         ]
         );

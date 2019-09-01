@@ -8,6 +8,7 @@ class GuiaController extends ControllerBase {
     protected $ambiente;
     protected $txt_ambiente;
     protected $firmado;
+    protected $nombres;
 
     public function initialize() {
         $this->tag->setTitle('Guias');
@@ -39,7 +40,7 @@ class GuiaController extends ControllerBase {
             $this->flash->notice("No se encontraron guias de remision que cumplan con los parametros de busqueda");
 
             $this->dispatcher->forward([
-                "controller" => "guiacab",
+                "controller" => "guia",
                 "action" => "index"
             ]);
 
@@ -48,7 +49,7 @@ class GuiaController extends ControllerBase {
 
         $paginator = new Paginator([
             'data' => $guiacab,
-            'limit' => 10,
+            'limit' => 100,
             'page' => $numberPage
         ]);
 
@@ -56,9 +57,11 @@ class GuiaController extends ControllerBase {
     }
 
     public function firmarAction($refNumber) {
+
+
         $parameters = array('conditions' => '[refNumber] = :numero:', 'bind' => array('numero' => $refNumber));
-        $guiacab = Guiacab::findFirst($parameters);
-        if ($guiacab == false) {
+        $guia = Guiacab::findFirst($parameters);
+        if ($guia == false) {
             $this->flash->error("Esta guia de remision no existe");
             return $this->dispatcher->forward(
                             [
@@ -67,15 +70,29 @@ class GuiaController extends ControllerBase {
             );
         }
 
-        $this->_registerGuia($guiacab);
-        $this->flash->success('Guia de Remision Seleccionada || ' . $guiacab->getrefNumber());
-        $this->firmaGuia($guiacab);
-        return $this->dispatcher->forward(
-                        [
-                            "controller" => "guiacab",
-                            "action" => "index"
-                        ]
-        );
+        $this->_registerGuia($guia);
+        $dedonde = $this->session->get('vinode');
+
+        $transferencia = 'TRANSFERENCIA';
+        $contribuyente = $this->session->get('contribuyente');
+        $parameters = array('conditions' => 'IDKEY = :clave:', 'bind' => array('clave' => $guia->gettxnID()));
+        $productos = Guiatrx::find($parameters);
+        $this->sacaNombres($guia->getorigenId(), $transferencia, $guia->getdestinoId(), $guia->getdriverId(), $guia->getrouteId(), $guia->getvehicleId());
+
+        $estado = $this->firmaGuia($guia);
+
+        $this->view->guia = $guia;
+        $this->view->contribuyente = $contribuyente;
+        $this->view->cliente = $cliente;
+        $this->view->nombres = $this->nombres;
+        $this->view->productos = $productos;
+
+        if ($estado === 'RECIBIDA') {
+            return $this->dispatcher->forward([
+                        'action' => 'autorizar',
+                        'params' => [$refNumber]
+            ]);
+        }
     }
 
     public function impresionAction($refNumber) {
@@ -169,7 +186,7 @@ class GuiaController extends ControllerBase {
         $ruta = $arreglo->routeId;
         $carro = $arreglo->vehicleId;
 
-        $nombres = $this->sacaNombres($origen, $tipo, $destino, $chofer, $ruta, $carro);
+        $this->sacaNombres($origen, $tipo, $destino, $chofer, $ruta, $carro);
         $doc = $this->claves->generaDoc($arreglo->refNumber);
         $this->session->set('guiacab', array(
             'TxnID' => $arreglo->txnID,
@@ -184,18 +201,18 @@ class GuiaController extends ControllerBase {
             'CustomField13' => $arreglo->CustomField13,
             'CustomField14' => $arreglo->CustomField14,
             'CustomField15' => $arreglo->CustomField15,
-            'origenaddress' => $nombres['origenaddress'],
-            'origennumeroid' => $nombres['origennumeroid'],
-            'origentipoid' => $nombres['origentipoid'],
-            'carroplaca' => $nombres['carroplaca'],
-            'destinoaddress' => $nombres['destinoaddress'],
-            'ruta' => $nombres['ruta'],
-            'destinonumeroid' => $nombres['destinonumeroid'],
-            'destinotipoid' => $nombres['destinotipoid'],
-            'chofernumeroId' => $nombres['chofernumeroId'],
-            'chofertipoId' => $nombres['chofertipoId'],
-            'chofer' => $nombres['chofer'],
-            'destino' => $nombres['destino'],
+            'origenaddress' => $this->nombres['origenaddress'],
+            'origennumeroid' => $this->nombres['origennumeroid'],
+            'origentipoid' => $this->nombres['origentipoid'],
+            'carroplaca' => $this->nombres['carroplaca'],
+            'destinoaddress' => $this->nombres['destinoaddress'],
+            'ruta' => $this->nombres['ruta'],
+            'destinonumeroid' => $this->nombres['destinonumeroid'],
+            'destinotipoid' => $this->nombres['destinotipoid'],
+            'chofernumeroId' => $this->nombres['chofernumeroId'],
+            'chofertipoId' => $this->nombres['chofertipoId'],
+            'chofer' => $this->nombres['chofer'],
+            'destino' => $this->nombres['destino'],
             'motive' => $arreglo->motive,
         ));
         $parameters = array('conditions' => '[CodEmisor] = :estab: AND [Punto] = :punto:', 'bind' => array('estab' => $doc['estab'], 'punto' => $doc['punto']));
@@ -229,13 +246,14 @@ class GuiaController extends ControllerBase {
 
         $this->totalGuia($guiacab);
         $mensaje = $this->claves->sriCliente($this->firmado, $this->ambiente);
+        $this->nombres['recibida'] = $mensaje;
         if ($mensaje == "RECIBIDA") {
-            $this->flash->success('EN ' . $this->txt_ambiente . $mensaje . ' la guia remision esta => ' . $mensaje);
+            $this->nombres['errorrecepcion'] = 'EN ' . $this->txt_ambiente . $mensaje . ' la guia remision esta => ' . $mensaje;
             $param['mensaje'] = 'RECIBIDA';
             $this->guiaAutorizada($param);
-        } else {
-            $this->flash->error('EN ' . $this->txt_ambiente . $mensaje);
         }
+
+        return $param['mensaje'];
     }
 
     function guiaAutorizada($param) {
@@ -257,6 +275,10 @@ class GuiaController extends ControllerBase {
             $fecAut = $param['fechaAutorizacion'];
             $guiacab->setCustomField14($nroAut);
             $guiacab->setCustomField13($fecAut);
+            $this->nombres['autorizado'] = "AUTORIZADO";
+            $this->nombres['errorautorizado'] = $param['mensaje'];
+            $this->nombres['numeroautorizacion'] = $nroAut;
+            $this->nombres['fechaautorizacion'] = $fecAut;
             $this->topdfguia->llenaGuia();
             $this->topdfguia->creaGuia(2);
         }
@@ -271,7 +293,6 @@ class GuiaController extends ControllerBase {
                         'action' => 'index',
             ]);
         }
-        $this->flash->success("la guia de remision ahora esta " . $param['mensaje']);
     }
 
     public function _cargarGuia($refNumber) {
@@ -291,19 +312,47 @@ class GuiaController extends ControllerBase {
 
     public function autorizarAction($refNumber) {
 
+        $dedonde = $this->session->get('vinode');
+
+        $parameters = array('conditions' => '[refNumber] = :numero:', 'bind' => array('numero' => $refNumber));
+        $guia = Guiacab::findFirst($parameters);
+        if ($guia == false) {
+            $this->flash->error("Esta guia de remision no existe");
+            return $this->dispatcher->forward(
+                            [
+                                "action" => "index",
+                            ]
+            );
+        }
+
+        if (!$dedonde) {
+            $this->sacaNombres($guia->getorigenId(), $transferencia, $guia->getdestinoId(), $guia->getdriverId(), $guia->getrouteId(), $guia->getvehicleId());
+        }
+
         $this->_cargarGuia($refNumber);
-        $this->flash->success('Guia de Retencion Seleccionada || ' . $refNumber);
+        $this->nombres['errorautorizado'] = 'Guia de Retencion Seleccionada || ' . $refNumber;
         $mensaje = $this->claves->respuestaSRI($this->firmado, $this->ambiente);
+        $this->nombres['autorizado'] = $mensaje['mensaje'];
         if ($mensaje['mensaje'] === "AUTORIZADO") {
             $this->guiaAutorizada($mensaje);
         } else {
-            $this->flash->error('EN ' . $this->txt_ambiente . $mensaje['mensaje']);
+            $this->nombres['errorautorizado'] = 'EN ' . $this->txt_ambiente . $mensaje['mensaje'];
         }
-        return $this->dispatcher->forward(
-                        [
-                            "action" => "search",
-                        ]
-        );
+
+
+
+        $transferencia = 'TRANSFERENCIA';
+        $contribuyente = $this->session->get('contribuyente');
+        $parameters = array('conditions' => 'IDKEY = :clave:', 'bind' => array('clave' => $guia->gettxnID()));
+        $productos = Guiatrx::find($parameters);
+
+        $this->view->guia = $guia;
+        $this->view->contribuyente = $contribuyente;
+        $this->view->cliente = $cliente;
+        $this->view->nombres = $this->nombres;
+        $this->view->productos = $productos;
+
+        $this->session->remove('vinode');
     }
 
     function totalGuia($guiacab) {
@@ -407,20 +456,20 @@ class GuiaController extends ControllerBase {
     }
 
     public function sacaNombres($origen, $tipo, $destino, $chofer, $ruta, $carro) {
-        $nombres = array();
+        $this->nombres = array();
         $a_origen = Bodegas::findFirstByListID($origen);
-        $nombres['origenId'] = $origen;
-        $nombres['origen'] = $a_origen->Name;
-        $nombres['origenaddress'] = $a_origen->BodegaAddress;
-        $nombres['origentipoid'] = $a_origen->TipoID;
-        $nombres['origennumeroid'] = $a_origen->NumeroID;
-        $nombres['origenemail'] = $a_origen->Email;
+        $this->nombres['origenId'] = $origen;
+        $this->nombres['origen'] = $a_origen->Name;
+        $this->nombres['origenaddress'] = $a_origen->BodegaAddress;
+        $this->nombres['origentipoid'] = $a_origen->TipoID;
+        $this->nombres['origennumeroid'] = $a_origen->NumeroID;
+        $this->nombres['origenemail'] = $a_origen->Email;
 
         if ($tipo === 'CLIENTE') {
             $a_destino = Customer::findFirstByListID($destino);
-            $nombres['destinoId'] = $destino;
-            $nombres['destino'] = $a_destino->Name;
-            $nombres['destinoaddress'] = $a_destino->BillAddress_Addr1;
+            $this->nombres['destinoId'] = $destino;
+            $this->nombres['destino'] = $a_destino->Name;
+            $this->nombres['destinoaddress'] = $a_destino->BillAddress_Addr1;
             if ($a_destino->CustomerTypeRef_FullName === 'RUC') {
                 $tipo_aux = '04';
             } elseif ($a_destino->CustomerTypeRef_FullName === 'CEDULA') {
@@ -430,35 +479,41 @@ class GuiaController extends ControllerBase {
             } elseif ($a_destino->CustomerTypeRef_FullName === 'EXTRANJERO') {
                 $tipo_aux = '07';
             }
-            $nombres['destinotipoid'] = $tipo_aux;
-            $nombres['destinonumeroid'] = $a_destino->AccountNumber;
-            $nombres['destinoemail'] = $a_destino->Email;
+            $this->nombres['destinotipoid'] = $tipo_aux;
+            $this->nombres['destinonumeroid'] = $a_destino->AccountNumber;
+            $this->nombres['destinoemail'] = $a_destino->Email;
         } else {
             $a_destino = Bodegas::findFirstByListID($destino);
-            $nombres['destinoId'] = $destino;
-            $nombres['destino'] = $a_destino->Name;
-            $nombres['destinoaddress'] = $a_destino->BodegaAddress;
-            $nombres['destinotipoid'] = $a_destino->TipoID;
-            $nombres['destinonumeroid'] = $a_destino->NumeroID;
-            $nombres['destinoemail'] = $a_destino->Email;
+            $this->nombres['destinoId'] = $destino;
+            $this->nombres['destino'] = $a_destino->Name;
+            $this->nombres['destinoaddress'] = $a_destino->BodegaAddress;
+            $this->nombres['destinotipoid'] = $a_destino->TipoID;
+            $this->nombres['destinonumeroid'] = $a_destino->NumeroID;
+            $this->nombres['destinoemail'] = $a_destino->Email;
         }
 
         $a_chofer = Driver::findFirstBylistID($chofer);
-        $nombres['choferId'] = $chofer;
-        $nombres['chofer'] = $a_chofer->name;
-        $nombres['choferaddress'] = $a_chofer->address;
-        $nombres['chofertipoId'] = $a_chofer->tipoId;
-        $nombres['chofernumeroId'] = $a_chofer->numeroId;
+        $this->nombres['choferId'] = $chofer;
+        $this->nombres['chofer'] = $a_chofer->name;
+        $this->nombres['choferaddress'] = $a_chofer->address;
+        $this->nombres['chofertipoId'] = $a_chofer->tipoId;
+        $this->nombres['chofernumeroId'] = $a_chofer->numeroId;
 
         $a_ruta = Route::findFirstBylistID($ruta);
-        $nombres['rutaId'] = $ruta;
-        $nombres['ruta'] = $a_ruta->description;
+        $this->nombres['rutaId'] = $ruta;
+        $this->nombres['ruta'] = $a_ruta->description;
 
         $a_carro = Vehicle::findFirstBylistID($carro);
-        $nombres['carroId'] = $carro;
-        $nombres['carro'] = $a_carro->description;
-        $nombres['carroplaca'] = $a_carro->name;
-        return $nombres;
+        $this->nombres['carroId'] = $carro;
+        $this->nombres['carro'] = $a_carro->description;
+        $this->nombres['carroplaca'] = $a_carro->name;
+
+        $this->nombres['recibida'] = 'no filling';
+        $this->nombres['autorizado'] = 'no filling';
+        $this->nombres['errorautorizado'] = 'no filling';
+        $this->nombres['errorrecepcion'] = 'no filling';
+        $this->nombres['fechaautorizacion'] = 'no filling';
+        $this->nombres['numeroautorizacion'] = 'no filling';
     }
 
 }

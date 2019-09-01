@@ -25,26 +25,41 @@ class VentasdbController extends ControllerBase {
         }
         $pendiente = $this->session->get('pendiente');
         if ($pendiente['estado'] === 'GRABADO') {
+            $valores = array();
+            $valores['refnumber'] = $pendiente['RefNumber'];
+            $valores['iva'] = 0;
+            $valores['siniva'] = 0;
+            $valores['coniva'] = 0;
+            $valores['subtotal'] = 0;
+            $this->session->set('valores', $valores);
             $this->flash->notice('Tiene un pedido de venta sin cerrar' . ' ESTADO: ' . $pendiente['estado'] . ' NRO. PEDIDO: ' . $pendiente['RefNumber']);
             return $this->dispatcher->forward([
                         "action" => "cabecera",
-                        "params" => [$pendiente['RefNumber']]
             ]);
         }
 
         $parameters = array('order' => 'TimeModified DESC', 'limit' => 1);
         $invoice = new Invoice();
         $invoice = Invoice::findFirst($parameters);
-        $this->view->hayonohay = "SI";
-        if(!$invoice){
-        $this->view->hayonohay = "NO";    
-        }
+
         $form = new NuevoTicketForm;
 
+        $estado = 'INIT';
         if ($this->request->isPost()) {
-
+            $CustomerRefListID = $this->request->getPost('CustomerRefListID');
             if ($form->isValid($this->request->getPost()) != false) {
-
+                $estado = $this->grabapedido($CustomerRefListID);
+                if ($estado != 'OK') {
+                    $this->flash->error((string) $estado);
+                    return $this->dispatcher->forward([
+                                "controller" => "home",
+                                "action" => "index",
+                    ]);
+                }
+                return $this->dispatcher->forward([
+                            "action" => "cabecera",
+                ]);
+            } else {
                 if ($form->getMessages()) {
                     foreach ($form->getMessages() as $message) {
                         $this->flash->error((string) $message);
@@ -52,7 +67,10 @@ class VentasdbController extends ControllerBase {
                 }
             }
         }
-
+        $this->view->hayonohay = "SI";
+        if (!$invoice) {
+            $this->view->hayonohay = "NO";
+        }
         $this->view->form = $form;
         $this->view->invoice = $invoice;
     }
@@ -60,6 +78,72 @@ class VentasdbController extends ControllerBase {
     /**
      *  Buscar la ultima factura
      */
+    public function grabapedido($CustomerRefListID) {
+
+
+        $ruc = $this->session->get('contribuyente');
+
+        $tipocod = 'NUM' . $ruc['estab'] . $ruc['punto'];
+        $calificado = 'TICKET';
+        $numero = $this->claves->numeroenserie($tipocod, $calificado);
+        $tipocod = 'NUM' . $ruc['estab'] . $ruc['punto'];
+        $calificado = 'FACTURA';
+        $numfact = $this->claves->numeroenserie($tipocod, $calificado);
+        $clave = $ruc['estab'] . '-' . $ruc['punto'] . '-' . $numfact;
+        $doc = $this->claves->generaDoc($clave);
+        $refNumber = $doc['estab'] . '-' . $doc['punto'] . '-' . $doc['documento'];
+        $fecha = date('Y-m-d H:m:s');
+        $cero = 0;
+
+        $cliente = Customer::findFirstByListID($CustomerRefListID);
+        if (!$cliente) {
+            return 'Que paso con el input? ' . $CustomerRefListID;
+        }
+
+        $pedido = new Aticket();
+        $pedido->setTxnID($refNumber);
+        $pedido->setTimeCreated($fecha);
+        $pedido->setTimeModified($fecha);
+        $pedido->setEstab($ruc['estab']);
+        $pedido->setPunto($ruc['punto']);
+        $pedido->setFestab($ruc['estab']);
+        $pedido->setFpunto($ruc['punto']);
+        $pedido->setGestab($ruc['estab']);
+        $pedido->setGpunto($ruc['punto']);
+        $pedido->setCustomerRefListID($cliente->ListID);
+        $pedido->setCustomerRefFullName($cliente->Name);
+        $pedido->setConIva(0);
+        $pedido->setEstado('GRABADO');
+        $pedido->setIva(0);
+        $pedido->setNroFactura('No Procesado');
+        $pedido->setRefNumber($numero);
+        $pedido->setFnumero($numfact);
+        $pedido->setFtipo('unica');
+        $pedido->setGtipo('Sin Guia');
+        $pedido->setSinIva(0);
+        $pedido->setSubTotal(0);
+        $pedido->setTxnDate(date('Y-m-d', strtotime($fecha)));
+        if (!$pedido->save()) {
+            foreach ($pedido->getMessages() as $message) {
+                return $message;
+            }
+        }
+
+
+        $valores = array();
+        $valores['refnumber'] = $pedido->getTxnID();
+        $valores['iva'] = $pedido->getIva();
+        $valores['siniva'] = $pedido->getSinIva();
+        $valores['coniva'] = $pedido->getConIva();
+        $valores['subtotal'] = $pedido->getSubTotal();
+        $this->session->set('valores', $valores);
+        $this->session->set('pendiente', array(
+            "estado" => 'GRABADO',
+            "RefNumber" => $refNumber
+        ));
+        return 'OK';
+    }
+
     public function opciondbAction() {
 
         if (!$this->request->isPost()) {
@@ -78,7 +162,9 @@ class VentasdbController extends ControllerBase {
         $tipocod = 'NUM' . $ruc['estab'] . $ruc['punto'];
         $calificado = 'FACTURA';
         $numfact = $this->claves->numeroenserie($tipocod, $calificado);
-        $clave = $this->claves->guid();
+        $clave = $ruc['estab'] . '-' . $ruc['punto'] . '-' . $numfact;
+        $doc = $this->claves->generaDoc($clave);
+        $refNumber = $doc['estab'] . '-' . $doc['punto'] . '-' . $doc['documento'];
         $fecha = date('Y-m-d H:m:s');
         $cero = 0;
 
@@ -92,7 +178,7 @@ class VentasdbController extends ControllerBase {
         }
 
         $pedido = new Aticket();
-        $pedido->setTxnID($clave);
+        $pedido->setTxnID($refNumber);
         $pedido->setTimeCreated($fecha);
         $pedido->setTimeModified($fecha);
         $pedido->setEstab($ruc['estab']);
@@ -137,31 +223,40 @@ class VentasdbController extends ControllerBase {
         $this->session->set('valores', $valores);
         $this->session->set('pendiente', array(
             "estado" => 'GRABADO',
-            "RefNumber" => $numero
+            "RefNumber" => $refNumber
         ));
-        $this->view->cliente = $cliente->ListID;
-        $this->view->nombre = $cliente->Name;
-        $this->view->refnumber = $numero;
+        return $this->dispatcher->forward([
+                    'action' => 'cabecera',
+                    'params' => [$refNumber]
+        ]);
+
+//        $this->view->cliente = $cliente->ListID;
+//        $this->view->nombre = $cliente->Name;
+//        $this->view->refnumber = $numero;
     }
 
-    public function cabeceraAction($refNumber) {
+    public function cabeceraAction() {
 
         $ruc = $this->session->get('contribuyente');
+        $valores = $this->session->get('valores');
+        $refNumber = $valores['refnumber'];
 
         $ticket = new Aticket();
-        $ticket = Aticket::findFirstByRefNumber($refNumber);
+        $ticket = Aticket::findFirstByTxnID($refNumber);
+
         if (!$ticket) {
             $this->flash->warning("no se ha encontrado el nuevo pedido ERROR" . $refNumber);
 
-            $this->dispatcher->forward([
-                'controller' => "index",
-                'action' => 'index'
+            return $this->dispatcher->forward([
+                        'controller' => 'home',
+                        'action' => 'index'
             ]);
         }
 
-        $TxnID = $ticket->TxnID;
+        $TxnID = $ticket->getTxnID();
+        $form = new VentaCabeceraForm;
 
-        if (!$this->request->isPost()) {
+        if (!$this->request->isPost() || $this->request->getPost('CustomerRefListID')) {
 
             $this->tag->setDefault("tipofactura", $ticket->getFtipo());
             $this->tag->setDefault("numerofactura", $ticket->getFnumero());
@@ -173,13 +268,13 @@ class VentasdbController extends ControllerBase {
             $this->tag->setDefault("notacomprador", $ticket->getNotasComprador());
             $this->tag->setDefault("condiciones", $ticket->getTerminosCondiciones());
             $this->tag->setDefault("fechaemision", $ticket->getTxnDate());
-        }
+        } else {
 
-        $form = new VentaCabeceraForm;
 
         if ($this->request->isPost()) {
 
             if ($form->isValid($this->request->getPost()) != false) {
+
                 $fecha = $this->request->getPost('fechaemision');
                 $ticket->Ftipo = $this->request->getPost('tipofactura');
                 $ticket->Gtipo = $this->request->getPost('tipoguia');
@@ -207,20 +302,23 @@ class VentasdbController extends ControllerBase {
             }
         }
 
+        }
+
         $this->view->form = $form;
         $this->view->ticket = $ticket;
         $this->view->ruc = $ruc;
     }
 
     public function productosAction($refNumber) {
+
         $this->flash->clear();
-        $ticket = Aticket::findFirstByRefNumber($refNumber);
+        $ticket = Aticket::findFirstByTxnID($refNumber);
+
         if (!$ticket) {
             $this->flash->warning("no se ha encontrado el nuevo pedido ERROR" . $refNumber);
 
-            $this->dispatcher->forward([
-                'controller' => "index",
-                'action' => 'index'
+            return $this->dispatcher->forward([
+                        'action' => 'index'
             ]);
         }
         // array("28" => "Servicios", "29" => "Inventarios", "30" => "No inventario",  "31" => "Terminado",  "32" => "Activo Fijo",  "33" => "Otros"));
@@ -239,6 +337,7 @@ class VentasdbController extends ControllerBase {
         } elseif ($tipofactura === '33') {
             $destipo = 'OtherCharge';
         }
+
         $ftipo['tipofactura'] = $tipofactura;
         $ftipo['destipo'] = $destipo;
         $this->session->set('tipofactura', $ftipo);
@@ -249,20 +348,22 @@ class VentasdbController extends ControllerBase {
             $valores = array();
         }
 
-        $valores['refnumber'] = $ticket->getRefNumber();
+        $valores['refnumber'] = $ticket->getTxnID();
         $valores['iva'] = 0;
         $valores['siniva'] = 0;
         $valores['coniva'] = 0;
         $valores['subtotal'] = 0;
 
-        $TxnID = $ticket->TxnID;
+        $TxnID = $ticket->getTxnID();
         $form = new TicketProductoForm;
         $parameters = array('conditions' => '[IDKEY] = :clave:', 'bind' => array('clave' => $TxnID));
         $ticketline = Aticketline::find($parameters);
+
         foreach ($ticketline as $producto) {
             $valores['iva'] = $valores['iva'] + $producto->Iva;
             $valores['subtotal'] = $valores['subtotal'] + $producto->SubTotal;
         }
+
         $this->session->set('valores', $valores);
         $this->view->ticket = $ticket;
         $this->view->form = $form;
@@ -275,12 +376,16 @@ class VentasdbController extends ControllerBase {
     public function masproductosAction($refNumber) {
 
         $valores = $this->session->get('valores');
+
         if (!$valores) {
+
             $valores = array();
             $valores['siniva'] = 0;
             $valores['coniva'] = 0;
         }
+
         if (!$this->request->isPost()) {
+
             return $this->dispatcher->forward([
                         'controller' => "ventas",
                         'action' => 'productos',
@@ -290,13 +395,18 @@ class VentasdbController extends ControllerBase {
 
         $form = new TicketProductoForm;
         $ticketline = new Aticketline();
-        $ticket = Aticket::findFirstByRefNumber($refNumber);
+        $ticket = Aticket::findFirstByTxnID($refNumber);
         $parameters = $this->request->getPost('ItemRefListID');
         $item = Items::findFirstByquickbooks_listid($parameters);
+
         if (!$item) {
+
             $this->flash->error('TREMENDO ERROR llame urgentemente al Administrador');
         }
+
+
         $data = $this->request->getPost();
+
         if (!$form->isValid($data)) {
             foreach ($form->getMessages() as $message) {
                 $this->flash->error($message);
@@ -313,24 +423,28 @@ class VentasdbController extends ControllerBase {
          * @param string $item->type    El tipo de factura proviene del Quickbooks (inventarios, producto terminado, servicios ..)
          * @param string $ticketline->Qty Cuando es por servicios o otros cargos se puede facturar solo por valor por lo que la cantidad es 1
          */
-        $clave = $this->claves->guid();
+        $clave = $refNumber . $this->request->getPost("ItemRefListID");
         $fecha = date('Y-m-d H:m:s');
         $ticketline->setTxnLineID($clave);
         $ticketline->setTimeCreated($fecha);
         $ticketline->setTimeModified($fecha);
         $ticketline->setItemRefListID($this->request->getPost("ItemRefListID"));
         $ticketline->setItemRefFullName($item->getsales_desc());
+
         if ($item->gettipo() === 'Assembly') {
+
             $ticketline->setQty($this->request->getPost("qty"));
             $ticketline->setPrice($item->getsales_price());
             $ticketline->setSubTotal($item->getsales_price() * $this->request->get('qty'));
             $ticketline->setIva(($item->getsales_price() * $this->request->get('qty')) * 12 / 100);
         } else {
+
             $ticketline->setQty(1);
             $ticketline->setPrice($this->request->getPost("qty"));
             $ticketline->setSubTotal($this->request->get('qty'));
             $ticketline->setIva(($this->request->get('qty')) * 12 / 100);
         }
+
         $ticketline->setIDKEY($ticket->TxnID);
         $ticketline->setEstado('ACTIVO');
 
@@ -340,7 +454,9 @@ class VentasdbController extends ControllerBase {
         $this->session->set('valores', $valores);
 
         if (!$ticketline->save()) {
+
             foreach ($ticketline->getMessages() as $message) {
+
                 $this->flash->error($message . " codigo " . $this->request->getPost('ItemRefListID') . " Producto " . $item->getsales_desc());
             }
 
@@ -373,7 +489,7 @@ class VentasdbController extends ControllerBase {
         $ftipo = $this->session->get('tipofactura');
         $contribuyente = $this->session->get('contribuyente');
         $ticket = new Aticket();
-        $ticket = Aticket::findFirstByRefNumber($valores['refnumber']);
+        $ticket = Aticket::findFirstByTxnID($valores['refnumber']);
         if (!$ticket) {
             $this->flash->error('Que esta pasando con ' . $valores['refnumber'] . ' o sera ' . $RefNumber);
             $this->dispatcher->forward([
@@ -442,11 +558,11 @@ class VentasdbController extends ControllerBase {
         $invoice->setTxnDate($ticket->getTxnDate());
         $invoice->setTxnNumber($ticket->getFnumero());
         $invoice->setCustomField8($ticket->getGestab() . '-' . $ticket->getGpunto() . '-' . $ticket->getGnumero());
-        $invoice->setTxnID($ticket->getFestab() . '-' . $ticket->getFpunto() . '-' . $ticket->getFnumero());
-/**
- *  Vamos a guardar el tipo de facturacion en el campo other
- *  Ponemos en ese campo el valor del Quickbooks
- */
+        $invoice->setTxnID($ticket->getTxnID());
+        /**
+         *  Vamos a guardar el tipo de facturacion en el campo other
+         *  Ponemos en ese campo el valor del Quickbooks
+         */
         $invoice->setOther($ftipo['destipo']);
         if (!$invoice->save()) {
             foreach ($invoice->getMessages() as $message) {
@@ -468,12 +584,12 @@ class VentasdbController extends ControllerBase {
             $item = Items::findFirstByquickbooks_listid($producto->getItemRefListID());
             $i++;
             $invoicedetail = new Invoicelinedetail();
-            $invoicedetail->setTxnLineID($ticket->getFestab() . '-' . $ticket->getFpunto() . '-' . $ticket->getFnumero() . '-' . $i);
+            $invoicedetail->setTxnLineID($ticket->getTxnID() . '-' . $i);
             $invoicedetail->setAmount($producto->getSubTotal());
             $invoicedetail->setClassRefFullName($cliente->getClassRefFullName());
             $invoicedetail->setClassRefListID($cliente->getClassRefListID());
             $invoicedetail->setDescription($item->getsales_desc());
-            $invoicedetail->setIDKEY($ticket->getFestab() . '-' . $ticket->getFpunto() . '-' . $ticket->getFnumero());
+            $invoicedetail->setIDKEY($ticket->getTxnID());
             $invoicedetail->setItemRefFullName($item->getfullname());
             $invoicedetail->setItemRefListID($item->getquickbooks_listid());
             $invoicedetail->setQuantity($producto->getQty());

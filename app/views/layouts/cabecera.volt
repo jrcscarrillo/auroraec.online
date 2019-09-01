@@ -1,4 +1,3 @@
-<body>
     <div class="w-100" style="background-color: #C1C1C1">
         <div class="container-fluid">
             <nav class="navbar navbar-default" style="background-color: #F3BE25;">

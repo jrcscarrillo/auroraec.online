@@ -8,7 +8,7 @@
         <div class="l-row">
             <div class="l-col-6">
                 <div class="form-body pad-0">        
-                    {{ form('ventasdb/masproductos/' ~ ticket.RefNumber, 'id':'consumo')}}
+                    {{ form('ventasdb/masproductos/' ~ ticket.TxnID, 'id':'consumo')}}
                     <fieldset>
                         <legend> Productos </legend>
                         <div class="l-row">
@@ -146,7 +146,7 @@
                                         {% endif %}
                                     <tbody>
                                 </table>
-                                {{ link_to("ventasdb/facturar/" ~ ticket.RefNumber, 'Facturar', "class": "btn btn-info") }}
+                                {{ link_to("ventasdb/facturar/" ~ ticket.RefNumber, 'Facturar', "class": "btn btn-success") }}
 
                             </div>
                         </div>

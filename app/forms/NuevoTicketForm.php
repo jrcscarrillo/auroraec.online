@@ -11,7 +11,8 @@ class NuevoTicketForm extends Form {
     public function initialize() {
 
         $cliente = Customer::find([
-            "columns" => "Name, ListID"
+            "columns" => "Name, ListID",
+            "order" => "Name"
 //            "conditions" => "type = ?1",
 //            "bind"       => [1 => $destipo]
            ]); 
@@ -38,5 +39,12 @@ class NuevoTicketForm extends Form {
         $this->add($TxnDate);
 
     }
-
+   public function messages($nombre)
+    {
+        if ($this->hasMessagesFor($nombre)) {
+            foreach ($this->getMessagesFor($nombre) as $mensaje) {
+                $this->flash->error($mensaje);
+            }
+        }
+    }
 }

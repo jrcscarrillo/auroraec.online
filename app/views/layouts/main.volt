@@ -38,8 +38,8 @@
         <link rel="stylesheet" href="https://carrillosteam.com/public/coop/style/table.css">
         <link rel="shortcut icon" href="https://carrillosteam.com/public/coop/images/favicon.ico">
     </head>
-
-{% block cuerpo %}{% endblock %}
+    <body>
+    {% block cuerpo %}{% endblock %}
 <!-- Latest compiled and minified JavaScript -->
 {{ javascript_include("https://carrillosteam.com/public/js/jquery.form.min.js") }}
 <!--[if lt IE 10]>

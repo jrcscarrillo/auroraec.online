@@ -3,15 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/wamp64/www/auroraec.online/app/controllers/GuiaController.php</file>
-            <file>file:/C:/wamp64/www/auroraec.online/app/controllers/VentasdbController.php</file>
-            <file>file:/C:/wamp64/www/auroraec.online/app/library/ToPdfGuia.php</file>
-            <file>file:/C:/wamp64/www/auroraec.online/app/plugins/SecurityPlugin.php</file>
-            <file>file:/C:/wamp64/www/auroraec.online/app/forms/GuiaNuevaForm.php</file>
-            <file>file:/C:/wamp64/www/auroraec.online/app/controllers/GuiasdbController.php</file>
-            <file>file:/C:/wamp64/www/auroraec.online/app/controllers/InvoiceController.php</file>
-            <file>file:/C:/wamp64/www/auroraec.online/app/controllers/GuiacabController.php</file>
-            <file>file:/C:/wamp64/www/auroraec.online/app/views/guia/index.volt</file>
+            <file>file:/C:/wamp64/www/auroraec.online/app/forms/RetencionForm.php</file>
+            <file>file:/C:/wamp64/www/auroraec.online/app/controllers/RetenciondbController.php</file>
+            <file>file:/C:/wamp64/www/auroraec.online/app/forms/ConceptoRetencionForm.php</file>
+            <file>file:/C:/wamp64/www/auroraec.online/app/views/retenciondb/new.volt</file>
         </group>
     </open-files>
 </project-private>
