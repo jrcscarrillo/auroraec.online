@@ -256,7 +256,7 @@ class ContribuyenteController extends ControllerBase {
         
         $this->_registerRuc($contribuyente);
         $saca = $this->session->get('contribuyente');
-        $this->flash->success('Contriuyente Seleccionado || ' . $_SESSION['contribuyente']['razon']);
+//        $this->flash->success('Contriuyente Seleccionado || ' . $_SESSION['contribuyente']['razon']);
         return $this->dispatcher->forward(
               [
                  "controller" => "index",

@@ -35,13 +35,13 @@
                         <th class="tb-gen tb-c20">NombreComercial</th>
                         <th class="tb-gen tb-c20">DirMatriz</th>
                         <th class="tb-gen tb-c20">DirEmisor</th>
-                        <th class="tb-gen tb-c3">Estab</th>
-                        <th class="tb-gen tb-c3">Punto</th>
-                        <th class="tb-gen tb-c3">Ambiente</th>
-                        <th class="tb-gen tb-c3">Emision</th>
-                        <th class="tb-gen tb-c3">Editar</th>
-                        <th class="tb-gen tb-c3">Borrar</th>
-                        <th class="tb-gen tb-c3">Selecc</th>
+                        <th class="tb-gen tb-c2">Estab</th>
+                        <th class="tb-gen tb-c2">Punto</th>
+                        <th class="tb-gen tb-c2">Ambiente</th>
+                        <th class="tb-gen tb-c2">Emision</th>
+                        <th class="tb-gen tb-c2">Editar</th>
+                        <th class="tb-gen tb-c2">Borrar</th>
+                        <th class="tb-gen tb-c2">Selecc</th>
                     </tr>
                 </thead>
                 <tbody>

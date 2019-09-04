@@ -26,16 +26,32 @@ class Elements extends Component {
                 'caption' => 'Login/Registrarse',
                 'action' => 'index'
             ),
+            'home' => array(
+                'caption' => 'Establecimiento y Punto de Emision',
+                'action' => 'index'
+            )
         )
     );
 
     public function getMenu() {
 
         $auth = $this->session->get('auth');
+        $ruc = $this->session->get('contribuyente');
+        $cap = 'Establecimiento y Punto de Emision';
+        if ($ruc) {
+
+            $cap = $ruc['NombreComercial'] . ' E ' . $ruc['estab'] . ' P ' . $ruc['punto'];
+        }
         if ($auth) {
-            $this->_headerMenu['navbar-right']['session'] = array(
-                'caption' => 'Salir',
-                'action' => 'end'
+            $this->_headerMenu['navbar-right'] = array(
+                'session' => array(
+                    'caption' => 'Salir',
+                    'action' => 'end'
+                ),
+                'home' => array(
+                    'caption' => $cap,
+                    'action' => 'index'
+                )
             );
         }
         $primeravez = true;
@@ -46,13 +62,13 @@ class Elements extends Component {
             foreach ($menu as $controller => $option) {
                 if ($controllerName == $controller) {
                     if ($controller === 'index') {
-                        echo '<li class="active">';
+                        echo '<li class="active bg-success">';
                     } else {
-                        echo '<li class="active">';
+                        echo '<li class="active bg-success">';
                     }
                 } else {
-                    if ($controller === 'index') {
-                        echo '<li>';
+                    if ($controller === 'home') {
+                        echo '<li class="bg-secondary font-weight-bold">';
                     } else {
                         echo '<li>';
                     }
